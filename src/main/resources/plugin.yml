@@ -1,0 +1,7 @@
+name: ParkourGhost
+description: Challenge your ghost or someone else's to a parkour. Inspired by Mario Kart time trials. Extension from existing plugin "Parkour"
+version: '1.0.0'
+main: fr.loudo.parkourGhost.ParkourGhost
+api-version: '1.21'
+authors: [ LOUDO ]
+website: https://lucasll.xyz
