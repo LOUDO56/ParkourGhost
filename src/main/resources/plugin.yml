@@ -5,3 +5,6 @@ main: fr.loudo.parkourGhost.ParkourGhost
 api-version: '1.21'
 authors: [ LOUDO ]
 website: https://lucasll.xyz
+commands:
+  createghostplayer:
+    description: spawn a ghost player
