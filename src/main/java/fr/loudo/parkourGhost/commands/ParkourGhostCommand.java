@@ -1,8 +1,12 @@
 package fr.loudo.parkourGhost.commands;
 
+import fr.loudo.parkourGhost.data.ParkourData;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_21_R3.entity.CraftAbstractArrow;
+import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,9 +16,9 @@ public class ParkourGhostCommand implements CommandExecutor {
 
         if(sender instanceof Player p) {
             String courseName = args[0];
-            String playerName = args[1];
 
-            p.performCommand("pa join " + courseName);
+            ParkourData.joinPlayerParkourAndStartPlayback(p, courseName);
+            p.sendMessage(ChatColor.GREEN + "Joined");
 
         }
 

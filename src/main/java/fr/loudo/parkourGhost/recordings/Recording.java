@@ -5,6 +5,8 @@ import fr.loudo.parkourGhost.data.PlayersDataManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
@@ -14,12 +16,12 @@ import java.util.List;
 public class Recording {
 
     private String courseName;
-    private ServerPlayer player;
+    private Player player;
     private List<MovementData> movements;
     private boolean isRecording;
     private BukkitTask task;
 
-    public Recording(String courseName, ServerPlayer player) {
+    public Recording(String courseName, Player player) {
         this.courseName = courseName;
         this.player = player;
         this.movements = new ArrayList<>();
@@ -32,8 +34,7 @@ public class Recording {
 
         movements.clear();
         task = Bukkit.getScheduler().runTaskTimer(ParkourGhost.getPlugin(), () -> {
-            MovementData movementData = MovementData.getMovementDataFromPlayer(player);
-            System.out.println(movementData);
+            MovementData movementData = MovementData.getMovementDataFromPlayer(((CraftPlayer)player).getHandle());
             movements.add(movementData);
         }, 0L, 1L);
 
@@ -51,7 +52,7 @@ public class Recording {
             try {
                 save();
             } catch (Exception e) {
-                player.sendSystemMessage(Component.literal("An unexpected error occured while saving your position data!"));
+                player.sendMessage("An unexpected error occured while saving your position data!");
                 throw new RuntimeException(e);
             }
         }
@@ -60,7 +61,7 @@ public class Recording {
     }
 
     public void save() throws IOException {
-        PlayersDataManager.writeRecordingData(movements, player.displayName, courseName);
+        PlayersDataManager.writeRecordingData(movements, player, courseName);
     }
 
     public boolean isRecording() {
@@ -79,11 +80,11 @@ public class Recording {
         this.courseName = courseName;
     }
 
-    public ServerPlayer getPlayer() {
+    public Player getPlayer() {
         return player;
     }
 
-    public void setPlayer(ServerPlayer player) {
+    public void setPlayer(Player player) {
         this.player = player;
     }
 

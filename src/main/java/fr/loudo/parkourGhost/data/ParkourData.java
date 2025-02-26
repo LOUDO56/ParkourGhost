@@ -3,19 +3,24 @@ package fr.loudo.parkourGhost.data;
 import fr.loudo.parkourGhost.recordings.MovementData;
 import fr.loudo.parkourGhost.recordings.Playback;
 import fr.loudo.parkourGhost.recordings.Recording;
+import io.github.a5h73y.parkour.Parkour;
+import io.github.a5h73y.parkour.commands.ParkourCommands;
+import io.github.a5h73y.parkour.type.ParkourManager;
 import net.minecraft.server.level.ServerPlayer;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 public class ParkourData {
 
-    private static final HashMap<ServerPlayer, Recording> SERVER_PLAYER_RECORDING_HASH_MAP = new HashMap<>();
-    private static final HashMap<ServerPlayer, Playback> SERVER_PLAYER_PLAYBACK_HASH_MAP = new HashMap<>();
+    private static final HashMap<Player, Recording> SERVER_PLAYER_RECORDING_HASH_MAP = new HashMap<>();
+    private static final HashMap<Player, Playback> SERVER_PLAYER_PLAYBACK_HASH_MAP = new HashMap<>();
 
-    public static boolean joinPlayerParkour(ServerPlayer player, String courseName) {
+    public static boolean joinPlayerParkour(Player player, String courseName) {
 
         if(SERVER_PLAYER_RECORDING_HASH_MAP.containsKey(player)) return false;
 
@@ -26,7 +31,17 @@ public class ParkourData {
         return true;
     }
 
-    public static boolean leavePlayerParkour(ServerPlayer player, String courseName, boolean force) {
+    public static boolean joinPlayerParkourAndStartPlayback(Player player, String courseName) {
+
+        if(SERVER_PLAYER_PLAYBACK_HASH_MAP.containsKey(player)) return false;
+
+        Parkour.getInstance().getPlayerManager().joinCourse(player, courseName);
+        startPlaybackOfPlayer(player, courseName);
+
+        return true;
+    }
+
+    public static boolean leavePlayerParkour(Player player, boolean force) {
 
         Recording recording = SERVER_PLAYER_RECORDING_HASH_MAP.get(player);
         if(recording == null) return false;
@@ -34,13 +49,19 @@ public class ParkourData {
         SERVER_PLAYER_RECORDING_HASH_MAP.remove(player, recording);
         recording.stop(force);
 
+        if(SERVER_PLAYER_PLAYBACK_HASH_MAP.containsKey(player)) {
+            stopPlaybackOfPlayer(player);
+        }
+
+
         return true;
     }
 
-    public static boolean startPlaybackOfPlayer(ServerPlayer player, String playerToPlayback, String courseName) {
+
+    public static boolean startPlaybackOfPlayer(Player player, String courseName) {
         PlayerData playerData;
         try {
-            playerData = PlayersDataManager.getRecordingData(playerToPlayback);
+            playerData = PlayersDataManager.getRecordingData(player);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -50,7 +71,7 @@ public class ParkourData {
             return false;
         }
 
-        Playback playback = new Playback(recordedRuns.get(courseName), player, playerToPlayback);
+        Playback playback = new Playback(recordedRuns.get(courseName), player);
         SERVER_PLAYER_PLAYBACK_HASH_MAP.put(player, playback);
         playback.start();
 
@@ -58,11 +79,11 @@ public class ParkourData {
 
     }
 
-    public static boolean stopPlaybackOfPlayer(ServerPlayer player) {
+    public static boolean stopPlaybackOfPlayer(Player player) {
         Playback playback = SERVER_PLAYER_PLAYBACK_HASH_MAP.get(player);
         if(playback == null) return false;
 
-        SERVER_PLAYER_RECORDING_HASH_MAP.remove(player, playback);
+        SERVER_PLAYER_PLAYBACK_HASH_MAP.remove(player, playback);
         playback.stop();
 
         return true;

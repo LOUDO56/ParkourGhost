@@ -8,21 +8,19 @@ import java.util.List;
 
 public class PlayerData {
 
+    private String username;
     private HashMap<String, List<MovementData>> recordedRuns;
 
     public PlayerData() {
         this.recordedRuns = new HashMap<>();
     }
 
-    public PlayerData(String username, HashMap<String, List<MovementData>> recordedRuns) {
-        this.recordedRuns = recordedRuns;
+    public PlayerData(String username) {
+        this.username = username;
+        this.recordedRuns = new HashMap<>();
     }
 
     public HashMap<String, List<MovementData>> getRecordedRuns() {
         return recordedRuns;
-    }
-
-    public void setRecordedRuns(HashMap<String, List<MovementData>> recordedRuns) {
-        this.recordedRuns = recordedRuns;
     }
 }

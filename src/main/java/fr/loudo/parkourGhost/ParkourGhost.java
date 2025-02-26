@@ -3,6 +3,9 @@ package fr.loudo.parkourGhost;
 import fr.loudo.parkourGhost.commands.ParkourGhostCommand;
 import fr.loudo.parkourGhost.data.PlayersDataManager;
 import fr.loudo.parkourGhost.events.ParkourEvents;
+import io.github.a5h73y.parkour.Parkour;
+import io.github.a5h73y.parkour.type.ParkourManager;
+import io.github.a5h73y.parkour.type.course.CourseManager;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 

@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import fr.loudo.parkourGhost.ParkourGhost;
 import fr.loudo.parkourGhost.recordings.MovementData;
 import net.minecraft.server.level.ServerPlayer;
+import org.bukkit.entity.Player;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -19,8 +20,8 @@ public class PlayersDataManager {
         if(!PLAYERS_FOLDER.exists()) PLAYERS_FOLDER.mkdirs();
     }
 
-    public static void writeRecordingData(List<MovementData> movementDataList, String username, String courseName) throws IOException {
-        File playerDataFile = new File(PLAYERS_FOLDER, username + ".json");
+    public static void writeRecordingData(List<MovementData> movementDataList, Player player, String courseName) throws IOException {
+        File playerDataFile = new File(PLAYERS_FOLDER, player.getUniqueId() + ".json");
         if(!playerDataFile.exists()) {
             Files.createFile(playerDataFile.toPath());
         }
@@ -32,7 +33,7 @@ public class PlayersDataManager {
         }
 
         if(playerData == null) {
-            playerData = new PlayerData();
+            playerData = new PlayerData(player.getDisplayName());
         }
 
         HashMap<String, List<MovementData>> recordedRuns = playerData.getRecordedRuns();
@@ -46,8 +47,8 @@ public class PlayersDataManager {
 
     }
 
-    public static PlayerData getRecordingData(String username) throws IOException {
-        File playerDataFile = new File(PLAYERS_FOLDER, username + ".json");
+    public static PlayerData getRecordingData(Player player) throws IOException {
+        File playerDataFile = new File(PLAYERS_FOLDER, player.getUniqueId() + ".json");
         if(!playerDataFile.exists()) {
             return null;
         }

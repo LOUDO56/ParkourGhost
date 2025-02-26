@@ -1,6 +1,7 @@
 package fr.loudo.parkourGhost.events;
 
 import fr.loudo.parkourGhost.ParkourGhost;
+import fr.loudo.parkourGhost.data.ParkourData;
 import fr.loudo.parkourGhost.recordings.Recording;
 import fr.loudo.parkourGhost.utils.GhostPlayer;
 import io.github.a5h73y.parkour.event.ParkourFinishEvent;
@@ -18,18 +19,18 @@ public class ParkourEvents implements Listener {
 
     @EventHandler
     public void onPlayerParkourJoin(ParkourJoinEvent event) {
-        Player p = event.getPlayer();
+        ParkourData.joinPlayerParkour(event.getPlayer(), event.getCourseName());
 
     }
 
     @EventHandler
     public void onPlayerParkourFinish(ParkourFinishEvent event) {
-
+        ParkourData.leavePlayerParkour(event.getPlayer(), false);
     }
 
     @EventHandler
-    public void onPlayerParkourFinish(ParkourLeaveEvent event) {
-
+    public void onPlayerParkourLeave(ParkourLeaveEvent event) {
+        ParkourData.leavePlayerParkour(event.getPlayer(), true);
     }
 
 }
