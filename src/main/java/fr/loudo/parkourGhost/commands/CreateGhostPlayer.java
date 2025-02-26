@@ -63,9 +63,9 @@ public class CreateGhostPlayer implements CommandExecutor {
             // Enable all skin layers
             SynchedEntityData dataWatcherGhost = ghostPlayer.getEntityData();
             EntityDataAccessor<Byte> ENTITY_LAYER = new EntityDataAccessor<>(17, EntityDataSerializers.BYTE);
-            dataWatcherGhost.set(ENTITY_LAYER, (byte) 0b011111111);
+            dataWatcherGhost.set(ENTITY_LAYER, (byte) 0b01111111);
 
-            ghostPlayer.setInvisible(true);
+            ghostPlayer.setInvisible(false);
 
             connection.send(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ghostPlayer));
             connection.send(new ClientboundAddEntityPacket(ghostPlayer, 147, BlockPos.containing(sp.position()))); // "147" qui est l'ID d'un joueur du tableau https://minecraft.wiki/w/Minecraft_Wiki:Projects/wiki.vg_merge/Entity_metadata#Entities
