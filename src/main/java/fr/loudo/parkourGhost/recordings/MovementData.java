@@ -1,18 +1,12 @@
-package fr.loudo.parkourGhost.recording;
+package fr.loudo.parkourGhost.recordings;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 
 public class MovementData {
 
-    private double x;
-    private double y;
-    private double z;
-
-    private float xRot;
-    private float yRot;
-    private float yHeadRot;
-    private float yBodyRot;
+    private double x, y, z;
+    private float xRot, yRot, yHeadRot, yBodyRot;
 
     public MovementData(double x, double y, double z, float xRot, float yRot, float yHeadRot, float yBodyRot) {
         this.x = x;

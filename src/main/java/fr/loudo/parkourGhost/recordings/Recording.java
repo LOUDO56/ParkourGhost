@@ -1,25 +1,28 @@
-package fr.loudo.parkourGhost.recording;
+package fr.loudo.parkourGhost.recordings;
 
 import fr.loudo.parkourGhost.ParkourGhost;
-import io.github.a5h73y.parkour.Parkour;
+import fr.loudo.parkourGhost.data.PlayersDataManager;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Recording {
 
-    private Parkour parkour;
+    private String courseName;
     private ServerPlayer player;
     private List<MovementData> movements;
     private boolean isRecording;
     private BukkitTask task;
 
-    public Recording(Parkour parkour, ServerPlayer player) {
-        this.parkour = parkour;
+    public Recording(String courseName, ServerPlayer player) {
+        this.courseName = courseName;
         this.player = player;
-
+        this.movements = new ArrayList<>();
     }
 
     public boolean start() {
@@ -27,22 +30,37 @@ public class Recording {
 
         isRecording = true;
 
+        movements.clear();
         task = Bukkit.getScheduler().runTaskTimer(ParkourGhost.getPlugin(), () -> {
             MovementData movementData = MovementData.getMovementDataFromPlayer(player);
+            System.out.println(movementData);
             movements.add(movementData);
-        }, 0L, 20L);
+        }, 0L, 1L);
 
         return true;
     }
 
-    public boolean stop() {
+    public boolean stop(boolean force) {
         if(!isRecording) return false;
 
         isRecording = false;
         task.cancel();
         task = null;
 
+        if(!force) {
+            try {
+                save();
+            } catch (Exception e) {
+                player.sendSystemMessage(Component.literal("An unexpected error occured while saving your position data!"));
+                throw new RuntimeException(e);
+            }
+        }
+
         return true;
+    }
+
+    public void save() throws IOException {
+        PlayersDataManager.writeRecordingData(movements, player.displayName, courseName);
     }
 
     public boolean isRecording() {
@@ -53,12 +71,12 @@ public class Recording {
         isRecording = recording;
     }
 
-    public Parkour getParkour() {
-        return parkour;
+    public String getCourseName() {
+        return courseName;
     }
 
-    public void setParkour(Parkour parkour) {
-        this.parkour = parkour;
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
     }
 
     public ServerPlayer getPlayer() {

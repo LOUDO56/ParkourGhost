@@ -1,13 +1,10 @@
-package fr.loudo.parkourGhost.recording;
+package fr.loudo.parkourGhost.recordings;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
+import fr.loudo.parkourGhost.data.PlayerData;
 import fr.loudo.parkourGhost.utils.GhostPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -16,30 +13,32 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
-import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 
+import java.util.List;
 import java.util.UUID;
 
 public class Playback {
 
-    private Recording recording;
-    private boolean isPlayingBack;
+    private List<MovementData> movementData;
     private ServerPlayer player;
+    private String usernamePlayerPlayback;
+    private ServerPlayer ghostPlayer;
+    private boolean isPlayingBack;
 
-    public Playback(Recording recording) {
-        this.recording = recording;
-        this.player = recording.getPlayer();
+    public Playback(List<MovementData> movementData, ServerPlayer player, String usernamePlayerPlayback) {
+        this.movementData = movementData;
+        this.player = player;
+        this.usernamePlayerPlayback = usernamePlayerPlayback;
+        isPlayingBack = false;
     }
 
-    public boolean start()
-    {
+    public boolean start() {
         if(isPlayingBack) return false;
         
-        GameProfile ghostGameProfile = new GameProfile(UUID.randomUUID(), player.getDisplayName().getString());
+        GameProfile ghostGameProfile = new GameProfile(UUID.randomUUID(), usernamePlayerPlayback);
         //TODO: Add skin of recorded player
 
-        GhostPlayer ghostPlayer = new GhostPlayer(player.serverLevel(), ghostGameProfile);
+        ghostPlayer = new GhostPlayer(player.serverLevel(), ghostGameProfile);
         ServerGamePacketListenerImpl connection = player.connection;
 
         Scoreboard scoreboard = new Scoreboard();
@@ -57,7 +56,7 @@ public class Playback {
 
         ghostPlayer.setInvisible(true);
 
-        MovementData firstLoc = recording.getMovements().getFirst();
+        MovementData firstLoc = movementData.getFirst();
         BlockPos startPos = new BlockPos((int) firstLoc.getX(), (int) firstLoc.getY(), (int) firstLoc.getZ());
 
         connection.send(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ghostPlayer));
@@ -65,7 +64,19 @@ public class Playback {
         connection.send(new ClientboundSetEntityDataPacket(ghostPlayer.getId(), dataWatcherGhost.getNonDefaultValues()));
         connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
 
+        isPlayingBack = true;
+
         return true;
 
+    }
+
+    public boolean stop() {
+        if(!isPlayingBack) return false;
+
+        ServerGamePacketListenerImpl connection = player.connection;
+
+        connection.send(new ClientboundPlayerInfoRemovePacket(List.of(ghostPlayer.getUUID())));
+
+        return true;
     }
 }
