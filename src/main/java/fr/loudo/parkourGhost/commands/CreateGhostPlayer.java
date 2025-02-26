@@ -1,6 +1,7 @@
 package fr.loudo.parkourGhost.commands;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 import fr.loudo.parkourGhost.utils.GhostPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
@@ -38,40 +39,38 @@ public class CreateGhostPlayer implements CommandExecutor {
 
         if(sender instanceof Player p) {
 
-            // Récupération du joueur côté serveur uniquement
             CraftPlayer craftPlayer = (CraftPlayer) p;
             ServerPlayer sp = craftPlayer.getHandle();
 
-            // Création d'un faux joueur (GhostPlayer qui est une classe qui hérite de ServerPlayer en créant son faux profil et une fausse connexion
-            GameProfile gameProfile = new GameProfile(UUID.randomUUID(), sp.getDisplayName().getString());
-            GhostPlayer ghostPlayer = new GhostPlayer(sp.serverLevel(), gameProfile);
+            GameProfile ghostGameProfile = new GameProfile(UUID.randomUUID(), sp.getDisplayName().getString());
+            GameProfile spGameProfile = sp.getGameProfile();
+            if(!spGameProfile.getProperties().isEmpty()) {
+                Property spTextures = spGameProfile.getProperties().get("textures").iterator().next();
+                ghostGameProfile.getProperties().put("textures", new Property("textures", spTextures.value(), spTextures.signature()));
+            }
+
+            GhostPlayer ghostPlayer = new GhostPlayer(sp.serverLevel(), ghostGameProfile);
             ServerGamePacketListenerImpl connection = sp.connection;
 
-
-            // Création d'une team pour que le npc et le joueur ne se rentrent pas dedans et que le joueur voit le npc en invisible.
-            Scoreboard scoreboard = sp.serverLevel().getScoreboard();
-            PlayerTeam team = scoreboard.getPlayersTeam("Ghost");
-            if(team == null) {
-                team = scoreboard.addPlayerTeam("Ghost");
-                team.setSeeFriendlyInvisibles(true);
-                team.setCollisionRule(Team.CollisionRule.NEVER);
-            }
+            Scoreboard scoreboard = new Scoreboard();
+            PlayerTeam team = new PlayerTeam(scoreboard, "Ghost");
+            team.setSeeFriendlyInvisibles(true);
+            team.setCollisionRule(Team.CollisionRule.NEVER);
+            team.setNameTagVisibility(Team.Visibility.NEVER);
+            scoreboard.addPlayerToTeam(sp.getDisplayName().getString(), team);
             scoreboard.addPlayerToTeam(ghostPlayer.getDisplayName().getString(), team);
 
-            // Le tricky commence :
-            // On accède au donnée du npc
-            // On y ajoute la valeur 32 en héxadécimal
-            // Et ça correspond à l'invisibilité du joueur
+            // Enable all skin layers
             SynchedEntityData dataWatcherGhost = ghostPlayer.getEntityData();
-            EntityDataAccessor<Byte> ENTITY_FLAGS = new EntityDataAccessor<>(0, EntityDataSerializers.BYTE);
-            dataWatcherGhost.set(ENTITY_FLAGS, (byte) 0x20);
+            EntityDataAccessor<Byte> ENTITY_LAYER = new EntityDataAccessor<>(17, EntityDataSerializers.BYTE);
+            dataWatcherGhost.set(ENTITY_LAYER, (byte) 0b011111111);
 
-            // Enfin on envoie 2 packets pour :
-            // - Simuler le fait qu'un joueur rejoint le serveur
-            // - Le spawn pour le rendre visibile
-            // Et tout ça uniquement côté client.
+            ghostPlayer.setInvisible(true);
+
             connection.send(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ghostPlayer));
-            connection.send(new ClientboundAddEntityPacket(ghostPlayer, 147, BlockPos.containing(sp.position())));
+            connection.send(new ClientboundAddEntityPacket(ghostPlayer, 147, BlockPos.containing(sp.position()))); // "147" qui est l'ID d'un joueur du tableau https://minecraft.wiki/w/Minecraft_Wiki:Projects/wiki.vg_merge/Entity_metadata#Entities
+            connection.send(new ClientboundSetEntityDataPacket(ghostPlayer.getId(), dataWatcherGhost.getNonDefaultValues()));
+            connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
 
             p.sendMessage("§aGhost player spawned! Il est invisible uniquement pour toi.");
             p.sendMessage("ID GhostPlayer: " + ghostPlayer.getId());
