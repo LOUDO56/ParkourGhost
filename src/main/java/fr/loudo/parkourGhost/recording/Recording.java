@@ -45,5 +45,43 @@ public class Recording {
         return true;
     }
 
+    public boolean isRecording() {
+        return isRecording;
+    }
 
+    public void setRecording(boolean recording) {
+        isRecording = recording;
+    }
+
+    public Parkour getParkour() {
+        return parkour;
+    }
+
+    public void setParkour(Parkour parkour) {
+        this.parkour = parkour;
+    }
+
+    public ServerPlayer getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(ServerPlayer player) {
+        this.player = player;
+    }
+
+    public List<MovementData> getMovements() {
+        return movements;
+    }
+
+    public void setMovements(List<MovementData> movements) {
+        this.movements = movements;
+    }
+
+    public BukkitTask getTask() {
+        return task;
+    }
+
+    public void setTask(BukkitTask task) {
+        this.task = task;
+    }
 }

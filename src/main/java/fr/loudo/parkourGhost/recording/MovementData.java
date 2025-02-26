@@ -42,6 +42,8 @@ public class MovementData {
         );
     }
 
+    public static get
+
     public double getX() {
         return x;
     }
