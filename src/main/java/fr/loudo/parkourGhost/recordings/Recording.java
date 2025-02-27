@@ -1,7 +1,10 @@
 package fr.loudo.parkourGhost.recordings;
 
 import fr.loudo.parkourGhost.ParkourGhost;
+import fr.loudo.parkourGhost.data.PlayerData;
 import fr.loudo.parkourGhost.data.PlayersDataManager;
+import io.github.a5h73y.parkour.Parkour;
+import io.github.a5h73y.parkour.type.player.session.ParkourSession;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.Bukkit;
@@ -34,7 +37,7 @@ public class Recording {
 
         movements.clear();
         task = Bukkit.getScheduler().runTaskTimer(ParkourGhost.getPlugin(), () -> {
-            MovementData movementData = MovementData.getMovementDataFromPlayer(((CraftPlayer)player).getHandle());
+            MovementData movementData = MovementData.getMovementDataFromPlayer(player);
             movements.add(movementData);
         }, 0L, 1L);
 
@@ -50,7 +53,13 @@ public class Recording {
 
         if(!force) {
             try {
-                save();
+                ParkourSession pSession = Parkour.getInstance().getParkourSessionManager().getParkourSession(player);
+                if(Parkour.getInstance().getDatabaseManager().isBestCourseTime(pSession.getCourseName(), pSession.getTimeFinished())) {
+                    save();
+                    player.sendMessage("You beat your last pb, record saved.");
+                } else {
+                    player.sendMessage("No new PB, record not saved.");
+                }
             } catch (Exception e) {
                 player.sendMessage("An unexpected error occured while saving your position data!");
                 throw new RuntimeException(e);

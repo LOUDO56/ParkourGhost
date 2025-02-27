@@ -12,6 +12,7 @@ import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -31,6 +32,13 @@ public class ParkourEvents implements Listener {
     @EventHandler
     public void onPlayerParkourLeave(ParkourLeaveEvent event) {
         ParkourData.leavePlayerParkour(event.getPlayer(), true);
+    }
+
+    @EventHandler
+    public void onDamage(EntityDamageEvent event) {
+        if(event.getEntity() instanceof Player) {
+            event.setCancelled(true);
+        }
     }
 
 }

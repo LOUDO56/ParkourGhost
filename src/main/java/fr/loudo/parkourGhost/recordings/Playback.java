@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import fr.loudo.parkourGhost.ParkourGhost;
 import fr.loudo.parkourGhost.utils.GhostPlayer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -11,11 +12,13 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
@@ -69,15 +72,13 @@ public class Playback {
         ghostPlayer.setInvisible(true);
 
         MovementData firstLoc = movementData.getFirst();
-        ghostPlayer.moveTo(firstLoc.getX(), firstLoc.getY(), firstLoc.getZ());
+        BlockPos blockpos = new BlockPos((int) firstLoc.getX(), (int)  firstLoc.getY(), (int) firstLoc.getZ());
 
         connection.send(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ghostPlayer));
-        //connection.send(new ClientboundAddEntityPacket(ghostPlayer, 147, startPos)); // id 147 from https://minecraft.wiki/w/Minecraft_Wiki:Projects/wiki.vg_merge/Entity_metadata#Entities
-        //connection.send(new ClientboundSetEntityDataPacket(ghostPlayer.getId(), dataWatcherGhost.getNonDefaultValues()));
-
-        player.serverLevel().addFreshEntity(ghostPlayer);
-
+        connection.send(new ClientboundAddEntityPacket(ghostPlayer, 147, blockpos)); // id 147 from https://minecraft.wiki/w/Minecraft_Wiki:Projects/wiki.vg_merge/Entity_metadata#Entities
+        connection.send(new ClientboundSetEntityDataPacket(ghostPlayer.getId(), dataWatcherGhost.getNonDefaultValues()));
         connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
+
 
         isPlayingBack = true;
 
@@ -100,11 +101,23 @@ public class Playback {
 
             MovementData pos = movementData.get(i.get());
 
-            ghostPlayer.setPos(new Vec3(pos.getX(), pos.getY(), pos.getZ()));
-            ghostPlayer.setXRot(pos.getxRot());
-            ghostPlayer.setYRot(pos.getyRot());
-            ghostPlayer.setYHeadRot(pos.getyHeadRot());
-            ghostPlayer.setYBodyRot(pos.getyBodyRot());
+            Vec3 deltaMovement = i.get() > 0
+                    ? new Vec3(
+                    pos.getX() - movementData.get(i.get() - 1).getX(),
+                    pos.getY() - movementData.get(i.get() - 1).getY(),
+                    pos.getZ() - movementData.get(i.get() - 1).getZ()
+            )
+                    : new Vec3(0,0,0);
+
+            PositionMoveRotation positionMoveRotation = new PositionMoveRotation(
+                    new Vec3(pos.getX(), pos.getY(), pos.getZ()),
+                    deltaMovement,
+                    pos.getyRot(),
+                    pos.getxRot()
+            );
+
+            player.connection.send(new ClientboundEntityPositionSyncPacket(ghostPlayer.getId(), positionMoveRotation, true));
+            player.connection.send(new ClientboundRotateHeadPacket(ghostPlayer, pos.getyHeadRot()));
 
             i.incrementAndGet();
         }, 0L, 1L);
@@ -116,8 +129,6 @@ public class Playback {
         isPlayingBack = false;
         task.cancel();
         task = null;
-
-        ghostPlayer.remove(Entity.RemovalReason.KILLED);
 
         player.connection.send(new ClientboundPlayerInfoRemovePacket(List.of(ghostPlayer.getUUID())));
         player.connection.send(new ClientboundRemoveEntitiesPacket(ghostPlayer.getId()));

@@ -2,37 +2,36 @@ package fr.loudo.parkourGhost.recordings;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 public class MovementData {
 
     private double x, y, z;
-    private float xRot, yRot, yHeadRot, yBodyRot;
+    private float xRot, yRot;
+    private byte yHeadRot;
 
-    public MovementData(double x, double y, double z, float xRot, float yRot, float yHeadRot, float yBodyRot) {
+    public MovementData(double x, double y, double z, float xRot, float yRot, byte yHeadRot) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.xRot = xRot;
         this.yRot = yRot;
         this.yHeadRot = yHeadRot;
-        this.yBodyRot = yBodyRot;
     }
 
-    public static MovementData getMovementDataFromPlayer(ServerPlayer player) {
-        Vec3 pPosition = player.position();
-        float xRot = player.getXRot();
-        float yRot = player.getYRot();
-        float yHeadRot = player.getYHeadRot();
-        float yBodyRot = player.yBodyRot;
+    public static MovementData getMovementDataFromPlayer(Player player) {
+        Location pPosition = player.getLocation();
+        float xRot = pPosition.getPitch();
+        float yRot = pPosition.getYaw();
 
         return new MovementData(
-                pPosition.x(),
-                pPosition.y(),
-                pPosition.z(),
+                pPosition.getX(),
+                pPosition.getY(),
+                pPosition.getZ(),
                 xRot,
                 yRot,
-                yHeadRot,
-                yBodyRot
+                (byte) (yRot * 256.0F / 360.0F)
         );
     }
 
@@ -76,19 +75,11 @@ public class MovementData {
         this.yRot = yRot;
     }
 
-    public float getyHeadRot() {
+    public byte getyHeadRot() {
         return yHeadRot;
     }
 
-    public void setyHeadRot(float yHeadRot) {
+    public void setyHeadRot(byte yHeadRot) {
         this.yHeadRot = yHeadRot;
-    }
-
-    public float getyBodyRot() {
-        return yBodyRot;
-    }
-
-    public void setyBodyRot(float yBodyRot) {
-        this.yBodyRot = yBodyRot;
     }
 }

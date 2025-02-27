@@ -1,5 +1,6 @@
 package fr.loudo.parkourGhost.data;
 
+import fr.loudo.parkourGhost.ParkourGhost;
 import fr.loudo.parkourGhost.recordings.MovementData;
 import fr.loudo.parkourGhost.recordings.Playback;
 import fr.loudo.parkourGhost.recordings.Recording;
@@ -35,8 +36,8 @@ public class ParkourData {
 
         if(SERVER_PLAYER_PLAYBACK_HASH_MAP.containsKey(player)) return false;
 
-        Parkour.getInstance().getPlayerManager().joinCourse(player, courseName);
         startPlaybackOfPlayer(player, courseName);
+        Parkour.getInstance().getPlayerManager().joinCourse(player, courseName);
 
         return true;
     }
@@ -52,7 +53,6 @@ public class ParkourData {
         if(SERVER_PLAYER_PLAYBACK_HASH_MAP.containsKey(player)) {
             stopPlaybackOfPlayer(player);
         }
-
 
         return true;
     }
@@ -72,7 +72,9 @@ public class ParkourData {
         }
 
         Playback playback = new Playback(recordedRuns.get(courseName), player);
-        SERVER_PLAYER_PLAYBACK_HASH_MAP.put(player, playback);
+        if(!SERVER_PLAYER_PLAYBACK_HASH_MAP.containsKey(player)) {
+            SERVER_PLAYER_PLAYBACK_HASH_MAP.put(player, playback);
+        }
         playback.start();
 
         return true;
