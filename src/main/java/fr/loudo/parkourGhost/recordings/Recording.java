@@ -54,8 +54,9 @@ public class Recording {
         if(!force) {
             try {
                 ParkourSession pSession = Parkour.getInstance().getParkourSessionManager().getParkourSession(player);
+                save();
                 if(Parkour.getInstance().getDatabaseManager().isBestCourseTime(pSession.getCourseName(), pSession.getTimeFinished())) {
-                    save();
+                    //save();
                     player.sendMessage("You beat your last pb, record saved.");
                 } else {
                     player.sendMessage("No new PB, record not saved.");
