@@ -63,6 +63,7 @@ public class Playback {
         PlayerTeam team = new PlayerTeam(scoreboard, "Ghost");
         team.setSeeFriendlyInvisibles(true);
         team.setCollisionRule(Team.CollisionRule.NEVER);
+        //TODO: add option see nametag
         //team.setNameTagVisibility(Team.Visibility.NEVER);
         scoreboard.addPlayerToTeam(player.getDisplayName().getString(), team);
         scoreboard.addPlayerToTeam(ghostPlayer.getDisplayName().getString(), team);
@@ -114,7 +115,7 @@ public class Playback {
                 ghostPlayer.setYRot(pos.getyRot());
                 ghostPlayer.setYHeadRot(pos.getyRot());
 
-                if(recordingData.getActionsPlayer().size() > 0) {
+                if(!recordingData.getActionsPlayer().isEmpty()) {
                     ActionPlayer actionPlayer = recordingData.getActionsPlayer().get(tick);
                     if(actionPlayer != null) {
                         player.sendSystemMessage(Component.literal(actionPlayer.getActionType().name()));
@@ -124,13 +125,11 @@ public class Playback {
                                 break;
                             case POSE:
                                 Pose pose = ((ChangePose) actionPlayer).getPose();
-                                player.sendSystemMessage(Component.literal(pose.name()));
                                 ghostPlayer.setPose(pose);
                                 break;
                         }
                     }
                 }
-
                 tick++;
             }
         }.runTaskTimer(ParkourGhost.getPlugin(), 0L, 1L);
