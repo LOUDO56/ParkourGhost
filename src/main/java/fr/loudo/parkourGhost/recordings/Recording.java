@@ -1,33 +1,39 @@
 package fr.loudo.parkourGhost.recordings;
 
 import fr.loudo.parkourGhost.ParkourGhost;
-import fr.loudo.parkourGhost.data.PlayerData;
 import fr.loudo.parkourGhost.data.PlayersDataManager;
+import fr.loudo.parkourGhost.recordings.actions.ActionPlayer;
+import fr.loudo.parkourGhost.recordings.actions.ActionType;
+import fr.loudo.parkourGhost.recordings.actions.ChangePose;
+import fr.loudo.parkourGhost.recordings.actions.MovementData;
 import io.github.a5h73y.parkour.Parkour;
 import io.github.a5h73y.parkour.type.player.session.ParkourSession;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Pose;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Recording {
 
     private String courseName;
     private Player player;
-    private List<MovementData> movements;
+    private RecordingData recordingData;
     private boolean isRecording;
-    private BukkitTask task;
+    private int tick;
 
     public Recording(String courseName, Player player) {
         this.courseName = courseName;
         this.player = player;
-        this.movements = new ArrayList<>();
+        this.recordingData = new RecordingData();
     }
 
     public boolean start() {
@@ -35,21 +41,38 @@ public class Recording {
 
         isRecording = true;
 
-        movements.clear();
-        task = Bukkit.getScheduler().runTaskTimer(ParkourGhost.getPlugin(), () -> {
-            MovementData movementData = MovementData.getMovementDataFromPlayer(player);
-            movements.add(movementData);
-        }, 0L, 1L);
+        recordingData.getMovementData().clear();
+        ServerPlayer serverPlayer = ((CraftPlayer)player).getHandle();
+
+        AtomicReference<Pose> lastPos = new AtomicReference<>(serverPlayer.getPose());
+        tick = 0;
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if(!isRecording) this.cancel();
+                MovementData movementData = MovementData.getMovementDataFromPlayer(player);
+                recordingData.getMovementData().add(movementData);
+
+                if(serverPlayer.getPose() != lastPos.get()) {
+                    recordingData.getActionsPlayer().put(tick, new ChangePose(serverPlayer.getPose()));
+                }
+                lastPos.set(serverPlayer.getPose());
+                tick++;
+            }
+        }.runTaskTimer(ParkourGhost.getPlugin(), 0L, 1L);
 
         return true;
+    }
+
+    public void addAction(ActionType actionType) {
+        recordingData.getActionsPlayer().put(tick, new ActionPlayer(actionType));
     }
 
     public boolean stop(boolean force) {
         if(!isRecording) return false;
 
         isRecording = false;
-        task.cancel();
-        task = null;
 
         if(!force) {
             try {
@@ -71,46 +94,6 @@ public class Recording {
     }
 
     public void save() throws IOException {
-        PlayersDataManager.writeRecordingData(movements, player, courseName);
-    }
-
-    public boolean isRecording() {
-        return isRecording;
-    }
-
-    public void setRecording(boolean recording) {
-        isRecording = recording;
-    }
-
-    public String getCourseName() {
-        return courseName;
-    }
-
-    public void setCourseName(String courseName) {
-        this.courseName = courseName;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public void setPlayer(Player player) {
-        this.player = player;
-    }
-
-    public List<MovementData> getMovements() {
-        return movements;
-    }
-
-    public void setMovements(List<MovementData> movements) {
-        this.movements = movements;
-    }
-
-    public BukkitTask getTask() {
-        return task;
-    }
-
-    public void setTask(BukkitTask task) {
-        this.task = task;
+        PlayersDataManager.writeRecordingData(recordingData, player, courseName);
     }
 }

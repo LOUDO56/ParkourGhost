@@ -1,6 +1,7 @@
 package fr.loudo.parkourGhost.data;
 
-import fr.loudo.parkourGhost.recordings.MovementData;
+import fr.loudo.parkourGhost.recordings.RecordingData;
+import fr.loudo.parkourGhost.recordings.actions.MovementData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +10,7 @@ import java.util.List;
 public class PlayerData {
 
     private String username;
-    private HashMap<String, List<MovementData>> recordedRuns;
+    private HashMap<String, RecordingData> recordedRuns;
 
     public PlayerData() {
         this.recordedRuns = new HashMap<>();
@@ -20,7 +21,7 @@ public class PlayerData {
         this.recordedRuns = new HashMap<>();
     }
 
-    public HashMap<String, List<MovementData>> getRecordedRuns() {
+    public HashMap<String, RecordingData> getRecordedRuns() {
         return recordedRuns;
     }
 }

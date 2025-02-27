@@ -3,14 +3,14 @@ package fr.loudo.parkourGhost.data;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fr.loudo.parkourGhost.ParkourGhost;
-import fr.loudo.parkourGhost.recordings.MovementData;
-import net.minecraft.server.level.ServerPlayer;
+import fr.loudo.parkourGhost.recordings.RecordingData;
+import fr.loudo.parkourGhost.recordings.actions.ActionPlayer;
+import fr.loudo.parkourGhost.recordings.actions.ActionPlayerDeserliazer;
 import org.bukkit.entity.Player;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.util.HashMap;
-import java.util.List;
 
 public class PlayersDataManager {
 
@@ -20,7 +20,7 @@ public class PlayersDataManager {
         if(!PLAYERS_FOLDER.exists()) PLAYERS_FOLDER.mkdirs();
     }
 
-    public static void writeRecordingData(List<MovementData> movementDataList, Player player, String courseName) throws IOException {
+    public static void writeRecordingData(RecordingData recordingData, Player player, String courseName) throws IOException {
         File playerDataFile = new File(PLAYERS_FOLDER, player.getUniqueId() + ".json");
         if(!playerDataFile.exists()) {
             Files.createFile(playerDataFile.toPath());
@@ -36,10 +36,10 @@ public class PlayersDataManager {
             playerData = new PlayerData(player.getDisplayName());
         }
 
-        HashMap<String, List<MovementData>> recordedRuns = playerData.getRecordedRuns();
+        HashMap<String, RecordingData> recordedRuns = playerData.getRecordedRuns();
         recordedRuns.remove(courseName);
 
-        recordedRuns.put(courseName, movementDataList);
+        recordedRuns.put(courseName, recordingData);
 
         try(Writer writer = new FileWriter(playerDataFile)) {
             gson.toJson(playerData, writer);
@@ -53,7 +53,9 @@ public class PlayersDataManager {
             return null;
         }
 
-        Gson gson = new GsonBuilder().create();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(ActionPlayer.class, new ActionPlayerDeserliazer())
+                .create();
         PlayerData playerData;
         try (Reader reader = new FileReader(playerDataFile)) {
             playerData = gson.fromJson(reader, PlayerData.class);

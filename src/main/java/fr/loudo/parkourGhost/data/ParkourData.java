@@ -1,20 +1,15 @@
 package fr.loudo.parkourGhost.data;
 
-import fr.loudo.parkourGhost.ParkourGhost;
-import fr.loudo.parkourGhost.recordings.MovementData;
+import fr.loudo.parkourGhost.recordings.RecordingData;
+import fr.loudo.parkourGhost.recordings.actions.MovementData;
 import fr.loudo.parkourGhost.recordings.Playback;
 import fr.loudo.parkourGhost.recordings.Recording;
 import io.github.a5h73y.parkour.Parkour;
-import io.github.a5h73y.parkour.commands.ParkourCommands;
-import io.github.a5h73y.parkour.type.ParkourManager;
-import net.minecraft.server.level.ServerPlayer;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 public class ParkourData {
 
@@ -66,8 +61,8 @@ public class ParkourData {
             throw new RuntimeException(e);
         }
 
-        HashMap<String, List<MovementData>> recordedRuns = playerData.getRecordedRuns();
-        if(recordedRuns == null) {
+        HashMap<String, RecordingData> recordedRuns = playerData.getRecordedRuns();
+        if(!recordedRuns.containsKey(courseName)) {
             return false;
         }
 
@@ -91,6 +86,10 @@ public class ParkourData {
         return true;
 
 
+    }
+
+    public static Recording getCurrentPlayerRecording(Player player) {
+        return SERVER_PLAYER_RECORDING_HASH_MAP.get(player);
     }
 
 }

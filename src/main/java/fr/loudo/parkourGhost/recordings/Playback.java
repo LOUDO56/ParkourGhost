@@ -3,8 +3,11 @@ package fr.loudo.parkourGhost.recordings;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import fr.loudo.parkourGhost.ParkourGhost;
+import fr.loudo.parkourGhost.recordings.actions.ActionPlayer;
+import fr.loudo.parkourGhost.recordings.actions.ActionType;
+import fr.loudo.parkourGhost.recordings.actions.ChangePose;
+import fr.loudo.parkourGhost.recordings.actions.MovementData;
 import fr.loudo.parkourGhost.utils.GhostPlayer;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -12,34 +15,32 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.PositionMoveRotation;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
 import org.bukkit.Bukkit;
-import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Playback {
 
-    private List<MovementData> movementData;
+    private RecordingData recordingData;
     private ServerPlayer player;
     private ServerPlayer ghostPlayer;
     private boolean isPlayingBack;
-    private BukkitTask task;
+    private int tick;
 
-    public Playback(List<MovementData> movementData, Player player) {
-        this.movementData = movementData;
+    public Playback(RecordingData recordingData, Player player) {
+        this.recordingData = recordingData;
         this.player = ((CraftPlayer) player).getHandle();
         isPlayingBack = false;
     }
@@ -73,7 +74,7 @@ public class Playback {
 
         ghostPlayer.setInvisible(true);
 
-        MovementData firstLoc = movementData.getFirst();
+        MovementData firstLoc = recordingData.getMovementData().getFirst();
         ghostPlayer.moveTo(firstLoc.getX(), firstLoc.getY(), firstLoc.getZ());
         //BlockPos blockpos = new BlockPos((int) firstLoc.getX(), (int)  firstLoc.getY(), (int) firstLoc.getZ());
 
@@ -94,33 +95,51 @@ public class Playback {
 
     private void run() {
 
-        AtomicInteger i = new AtomicInteger(0);
+        tick = 0;
 
-        task = Bukkit.getScheduler().runTaskTimer(ParkourGhost.getPlugin(), () -> {
+        new BukkitRunnable() {
 
-            if (i.get() >= movementData.size()) {
-                stop();
-                return;
+            @Override
+            public void run() {
+                if(!isPlayingBack) this.cancel();
+
+                if (tick >= recordingData.getMovementData().size()) {
+                    stop();
+                    return;
+                }
+
+                MovementData pos = recordingData.getMovementData().get(tick);
+                ghostPlayer.setPos(pos.getX(), pos.getY(), pos.getZ());
+                ghostPlayer.setXRot(pos.getxRot());
+                ghostPlayer.setYRot(pos.getyRot());
+                ghostPlayer.setYHeadRot(pos.getyRot());
+
+                if(recordingData.getActionsPlayer().size() > 0) {
+                    ActionPlayer actionPlayer = recordingData.getActionsPlayer().get(tick);
+                    if(actionPlayer != null) {
+                        player.sendSystemMessage(Component.literal(actionPlayer.getActionType().name()));
+                        switch (actionPlayer.getActionType()) {
+                            case SWING:
+                                ghostPlayer.swing(InteractionHand.MAIN_HAND);
+                                break;
+                            case POSE:
+                                Pose pose = ((ChangePose) actionPlayer).getPose();
+                                player.sendSystemMessage(Component.literal(pose.name()));
+                                ghostPlayer.setPose(pose);
+                                break;
+                        }
+                    }
+                }
+
+                tick++;
             }
-
-            MovementData pos = movementData.get(i.get());
-
-            ghostPlayer.setPose(pos.getPose());
-            ghostPlayer.setPos(pos.getX(), pos.getY(), pos.getZ());
-            ghostPlayer.setXRot(pos.getxRot());
-            ghostPlayer.setYRot(pos.getyRot());
-            ghostPlayer.setYHeadRot(pos.getyRot());
-
-            i.incrementAndGet();
-        }, 0L, 1L);
+        }.runTaskTimer(ParkourGhost.getPlugin(), 0L, 1L);
     }
 
     public boolean stop() {
         if(!isPlayingBack) return false;
 
         isPlayingBack = false;
-        task.cancel();
-        task = null;
 
         ghostPlayer.remove(Entity.RemovalReason.KILLED);
         player.connection.send(new ClientboundPlayerInfoRemovePacket(List.of(ghostPlayer.getUUID())));
