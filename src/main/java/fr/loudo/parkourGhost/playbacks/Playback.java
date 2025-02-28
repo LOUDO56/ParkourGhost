@@ -28,6 +28,7 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.List;
 import java.util.UUID;
@@ -40,6 +41,10 @@ public class Playback {
     private ServerPlayer ghostPlayer;
     private boolean isPlayingBack;
     private int tick;
+    private boolean onCountdown;
+    private BukkitTask countdownTask;
+    private BukkitTask blockPlayerTask;
+    private BukkitTask ghostPlayerTask;
 
     public Playback(RecordingData recordingData, Player player) {
         this.recordingData = recordingData;
@@ -50,6 +55,7 @@ public class Playback {
 
     public boolean start() {
         if(isPlayingBack) return false;
+        isPlayingBack = true;
 
         startCountdown();
 
@@ -92,20 +98,18 @@ public class Playback {
         connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
 
         serverPlayer.serverLevel().addFreshEntity(ghostPlayer);
-
-        isPlayingBack = true;
     }
 
     public void run() {
 
         createGhostPlayer();
+        onCountdown = false;
         tick = 0;
 
-        new BukkitRunnable() {
+        ghostPlayerTask = new BukkitRunnable() {
 
             @Override
             public void run() {
-                if(!isPlayingBack) this.cancel();
 
                 if (tick >= recordingData.getMovementData().size()) {
                     stop();
@@ -144,32 +148,28 @@ public class Playback {
     }
 
     private void startCountdown() {
+        onCountdown = true;
         PlaybackCountdown playbackCountdown = new PlaybackCountdown(player, this);
         MovementData firstLoc = recordingData.getMovementData().getFirst();
-        new BukkitRunnable() {
+        countdownTask = new BukkitRunnable() {
             @Override
             public void run() {
                 playbackCountdown.update();
-                if(playbackCountdown.getSeconds() < 0) {
+                if (playbackCountdown.getSeconds() < 0) {
                     playbackCountdown.getPlayback().run();
                     ParkourGhostManager.getCurrentPlayerRecording(player).start();
                     this.cancel();
                 }
-                if(!Parkour.getInstance().getParkourSessionManager().isPlaying(player)) {
-                    this.cancel();
-                }
             }
         }.runTaskTimer(ParkourGhost.getPlugin(), 0L, 20L);
-        new BukkitRunnable() {
+        blockPlayerTask = new BukkitRunnable() {
             @Override
             public void run() {
                 player.teleport(new Location(player.getWorld(), firstLoc.getX(), firstLoc.getY(), firstLoc.getZ()));
                 if(playbackCountdown.getSeconds() < 0) {
                     this.cancel();
                 }
-                if(!Parkour.getInstance().getParkourSessionManager().isPlaying(player)) {
-                    this.cancel();
-                }
+
             }
         }.runTaskTimer(ParkourGhost.getPlugin(), 0L, 1L);
     }
@@ -177,11 +177,31 @@ public class Playback {
     public boolean stop() {
         if(!isPlayingBack) return false;
 
+        if(countdownTask != null) {
+            countdownTask.cancel();
+            countdownTask = null;
+        }
+        if(blockPlayerTask != null) {
+            blockPlayerTask.cancel();
+            blockPlayerTask = null;
+        }
+
+        if(ghostPlayerTask != null) {
+            ghostPlayerTask.cancel();
+            ghostPlayerTask = null;
+        }
+
+        if(ghostPlayer != null) {
+            ghostPlayer.remove(Entity.RemovalReason.KILLED);
+            serverPlayer.connection.send(new ClientboundPlayerInfoRemovePacket(List.of(ghostPlayer.getUUID())));
+        }
+
         isPlayingBack = false;
 
-        ghostPlayer.remove(Entity.RemovalReason.KILLED);
-        serverPlayer.connection.send(new ClientboundPlayerInfoRemovePacket(List.of(ghostPlayer.getUUID())));
-
         return true;
+    }
+
+    public boolean isOnCountdown() {
+        return onCountdown;
     }
 }

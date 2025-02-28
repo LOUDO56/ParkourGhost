@@ -34,7 +34,7 @@ public class PlaybackCountdown {
         }
         if(seconds == 0) {
             player.playSound(player, COUNTDOWN_SOUND, 1.0f, 1.0f);
-            player.sendTitle("", ChatColor.GREEN +"GO!", 0, 10, 0);
+            player.sendTitle("", ChatColor.GREEN +"GO!", 0, 30, 3);
         } else {
             player.playSound(player, COUNTDOWN_SOUND, 1.0f, currentPitch);
             player.sendTitle("", currentColor + String.valueOf(seconds), 0, 30, 0);

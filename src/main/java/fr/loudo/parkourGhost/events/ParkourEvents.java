@@ -39,9 +39,7 @@ public class ParkourEvents implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        if(Parkour.getInstance().getParkourSessionManager().isPlaying(event.getPlayer())) {
-            ParkourGhostManager.stopRecordOrPlayback(event.getPlayer(), true);
-        }
+        ParkourGhostManager.stopRecordOrPlayback(event.getPlayer(), true);
     }
 
     @EventHandler

@@ -50,6 +50,7 @@ public class ParkourGhostManager {
         if(!startPlaybackOfPlayer(player, courseName)) return false;
 
         Parkour.getInstance().getPlayerManager().joinCourse(player, courseName);
+        player.sendTitle("", "", 0, 0, 0); // Override title sent when joining a parkour from Parkour plugin
 
         return true;
     }
@@ -99,5 +100,11 @@ public class ParkourGhostManager {
     public static Recording getCurrentPlayerRecording(Player player) {
         return SERVER_PLAYER_RECORDING_HASH_MAP.get(player);
     }
+
+    public static Playback getCurrentPlayerPlayback(Player player) {
+        return SERVER_PLAYER_PLAYBACK_HASH_MAP.get(player);
+    }
+
+
 
 }
