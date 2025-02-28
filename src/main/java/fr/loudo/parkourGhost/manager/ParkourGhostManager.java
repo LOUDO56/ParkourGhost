@@ -1,9 +1,9 @@
 package fr.loudo.parkourGhost.manager;
 
 import fr.loudo.parkourGhost.data.player.PlayerData;
-import fr.loudo.parkourGhost.recordings.RecordingData;
 import fr.loudo.parkourGhost.playbacks.Playback;
 import fr.loudo.parkourGhost.recordings.Recording;
+import fr.loudo.parkourGhost.recordings.RecordingData;
 import io.github.a5h73y.parkour.Parkour;
 import org.bukkit.entity.Player;
 

@@ -1,7 +1,8 @@
 package fr.loudo.parkourGhost.playbacks;
 
 import fr.loudo.parkourGhost.ParkourGhost;
-import org.bukkit.*;
+import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 public class PlaybackCountdown {

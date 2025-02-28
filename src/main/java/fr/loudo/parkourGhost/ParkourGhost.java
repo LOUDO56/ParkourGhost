@@ -2,8 +2,8 @@ package fr.loudo.parkourGhost;
 
 import fr.loudo.parkourGhost.commands.ParkourGhostCommand;
 import fr.loudo.parkourGhost.commands.ParkourGhostTabCompleter;
-import fr.loudo.parkourGhost.manager.PlayersDataManager;
 import fr.loudo.parkourGhost.events.ParkourEvents;
+import fr.loudo.parkourGhost.manager.PlayersDataManager;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
