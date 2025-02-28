@@ -19,9 +19,15 @@ public class ParkourGhostCommand implements CommandExecutor {
                 return true;
             }
 
-            if(ParkourGhostManager.joinPlayerParkourAndStartPlayback(p, courseName.toLowerCase())) {
-                p.sendMessage(ChatColor.GREEN + "Joined");
-            } else {
+            if(courseName.equalsIgnoreCase("help")) {
+                p.sendMessage(ChatColor.GREEN + "/parkourghost [course_name] - Challenge your best time ghost on a parkour.");
+                if(p.hasPermission("parkourghost.admin")) {
+                    p.sendMessage(ChatColor.GREEN + "/parkourghost reload - Reload Parkour Ghost configuration.");
+                }
+                return true;
+            }
+
+            if(!ParkourGhostManager.joinPlayerParkourAndStartPlayback(p, courseName.toLowerCase())) {
                 p.sendMessage(ChatColor.RED + "No record found for this parkour.");
             }
 

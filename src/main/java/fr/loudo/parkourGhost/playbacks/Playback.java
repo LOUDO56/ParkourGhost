@@ -12,6 +12,8 @@ import fr.loudo.parkourGhost.utils.GhostPlayer;
 import io.github.a5h73y.parkour.Parkour;
 import io.github.a5h73y.parkour.type.checkpoint.Checkpoint;
 import io.github.a5h73y.parkour.type.course.Course;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -101,7 +103,21 @@ public class Playback {
         connection.send(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ghostPlayer));
         connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
 
+
         serverPlayer.serverLevel().addFreshEntity(ghostPlayer);
+        serverPlayer.connection.send(new ClientboundLevelParticlesPacket(
+                ParticleTypes.CLOUD,
+                false,
+                true,
+                ghostPlayer.getX(),
+                ghostPlayer.getY(),
+                ghostPlayer.getZ(),
+                0.5F,
+                1.3F,
+                0.5F,
+                0.05F,
+                50
+        ));
     }
 
     public void run() {
