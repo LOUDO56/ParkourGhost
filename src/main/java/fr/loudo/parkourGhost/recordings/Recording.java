@@ -10,9 +10,11 @@ import io.github.a5h73y.parkour.Parkour;
 import io.github.a5h73y.parkour.type.player.session.ParkourSession;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Pose;
+import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -24,6 +26,7 @@ public class Recording {
     private RecordingData recordingData;
     private boolean isRecording;
     private int tick;
+    private BukkitTask recordTask;
 
     public Recording(String courseName, Player player) {
         this.courseName = courseName;
@@ -42,10 +45,9 @@ public class Recording {
         AtomicReference<Pose> lastPos = new AtomicReference<>(serverPlayer.getPose());
         tick = 0;
 
-        new BukkitRunnable() {
+        recordTask = new BukkitRunnable() {
             @Override
             public void run() {
-                if(!isRecording) this.cancel();
                 MovementData movementData = MovementData.getMovementDataFromPlayer(player);
                 recordingData.getMovementData().add(movementData);
 
@@ -67,20 +69,20 @@ public class Recording {
     public boolean stop(boolean force) {
         if(!isRecording) return false;
 
+        recordTask.cancel();
+        recordTask = null;
+
         isRecording = false;
 
         if(!force) {
             try {
                 ParkourSession pSession = Parkour.getInstance().getParkourSessionManager().getParkourSession(player);
-                save();
                 if(Parkour.getInstance().getDatabaseManager().isBestCourseTime(pSession.getCourseName(), pSession.getTimeFinished())) {
-                    //save();
-                    player.sendMessage("You beat your last pb, record saved.");
-                } else {
-                    player.sendMessage("No new PB, record not saved.");
+                    save();
+                    player.sendMessage(ChatColor.GREEN + "New Personal Best. Challenge your ghost with /paghost " + pSession.getCourseName());
                 }
             } catch (Exception e) {
-                player.sendMessage("An unexpected error occured while saving your position data!");
+                player.sendMessage("An unexpected error occurred while saving your position data!");
                 throw new RuntimeException(e);
             }
         }

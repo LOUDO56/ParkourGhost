@@ -76,7 +76,7 @@ public class ParkourGhostManager {
             currentPlayback.stop();
         }
 
-        Playback playback = new Playback(recordedRuns.get(courseName), player);
+        Playback playback = new Playback(recordedRuns.get(courseName), player, courseName);
         SERVER_PLAYER_PLAYBACK_HASH_MAP.put(player, playback);
         playback.start();
 

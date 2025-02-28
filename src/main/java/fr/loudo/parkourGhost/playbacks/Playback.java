@@ -10,6 +10,8 @@ import fr.loudo.parkourGhost.recordings.actions.PlayerPoseChange;
 import fr.loudo.parkourGhost.recordings.actions.MovementData;
 import fr.loudo.parkourGhost.utils.GhostPlayer;
 import io.github.a5h73y.parkour.Parkour;
+import io.github.a5h73y.parkour.type.checkpoint.Checkpoint;
+import io.github.a5h73y.parkour.type.course.Course;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -38,6 +40,7 @@ public class Playback {
     private RecordingData recordingData;
     private ServerPlayer serverPlayer;
     private Player player;
+    private String courseName;
     private ServerPlayer ghostPlayer;
     private boolean isPlayingBack;
     private int tick;
@@ -46,10 +49,11 @@ public class Playback {
     private BukkitTask blockPlayerTask;
     private BukkitTask ghostPlayerTask;
 
-    public Playback(RecordingData recordingData, Player player) {
+    public Playback(RecordingData recordingData, Player player, String courseName) {
         this.recordingData = recordingData;
         this.serverPlayer = ((CraftPlayer) player).getHandle();
         this.player = player;
+        this.courseName = courseName;
         isPlayingBack = false;
     }
 
@@ -150,7 +154,8 @@ public class Playback {
     private void startCountdown() {
         onCountdown = true;
         PlaybackCountdown playbackCountdown = new PlaybackCountdown(player, this);
-        MovementData firstLoc = recordingData.getMovementData().getFirst();
+
+        Course course = Parkour.getInstance().getCourseManager().findByName(courseName);
         countdownTask = new BukkitRunnable() {
             @Override
             public void run() {
@@ -165,7 +170,7 @@ public class Playback {
         blockPlayerTask = new BukkitRunnable() {
             @Override
             public void run() {
-                player.teleport(new Location(player.getWorld(), firstLoc.getX(), firstLoc.getY(), firstLoc.getZ()));
+                player.teleport(course.getCheckpoints().get(0).getLocation());
                 if(playbackCountdown.getSeconds() < 0) {
                     this.cancel();
                 }
