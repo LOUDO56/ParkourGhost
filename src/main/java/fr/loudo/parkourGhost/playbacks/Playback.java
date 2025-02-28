@@ -28,6 +28,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -144,6 +145,7 @@ public class Playback {
             public void run() {
 
                 if (tick >= recordingData.getMovementData().size()) {
+                    player.sendMessage(ChatColor.GREEN + "The " + ChatColor.YELLOW + "ghost" + ChatColor.GREEN + " finished the parkour.");
                     stop();
                     return;
                 }
