@@ -1,5 +1,6 @@
 package fr.loudo.parkourGhost.commands;
 
+import fr.loudo.parkourGhost.ParkourGhost;
 import fr.loudo.parkourGhost.manager.ParkourGhostManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -8,26 +9,39 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+
 public class ParkourGhostCommand implements CommandExecutor {
+
+    private String[] options = {"help", "reload"};
+
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 
         if(sender instanceof Player p) {
-            String courseName = args[0];
             if(args[0].isEmpty()) {
                 p.sendMessage(ChatColor.RED + "Please, put the course name.");
                 return true;
             }
 
-            if(courseName.equalsIgnoreCase("help")) {
-                p.sendMessage(ChatColor.GREEN + "/parkourghost [course_name] - Challenge your best time ghost on a parkour.");
-                if(p.hasPermission("parkourghost.admin")) {
-                    p.sendMessage(ChatColor.GREEN + "/parkourghost reload - Reload Parkour Ghost configuration.");
+            if(Arrays.asList(options).contains(args[0])) {
+                switch (args[0]) {
+                    case "help":
+                        p.sendMessage(ChatColor.GREEN + "/parkourghost [course_name] - Challenge your best time ghost on a parkour.");
+                        if(p.hasPermission("parkourghost.admin")) {
+                            p.sendMessage(ChatColor.GREEN + "/parkourghost reload - Reload Parkour Ghost configuration.");
+                        }
+                        break;
+                    case "reload":
+                        ParkourGhost.getPlugin().reloadConfig();
+                        p.sendMessage(ChatColor.GREEN + "Successfully reloaded ParkourGhost config!");
                 }
                 return true;
             }
 
-            if(!ParkourGhostManager.joinPlayerParkourAndStartPlayback(p, courseName.toLowerCase())) {
+            if(!ParkourGhostManager.joinPlayerParkourAndStartPlayback(p, args[0].toLowerCase())) {
                 p.sendMessage(ChatColor.RED + "No record found for this parkour.");
             }
 

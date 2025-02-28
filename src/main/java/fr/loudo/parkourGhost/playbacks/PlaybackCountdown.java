@@ -1,5 +1,6 @@
 package fr.loudo.parkourGhost.playbacks;
 
+import fr.loudo.parkourGhost.ParkourGhost;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
@@ -15,7 +16,7 @@ public class PlaybackCountdown {
     public PlaybackCountdown(Player player, Playback playback) {
         this.player = player;
         this.playback = playback;
-        seconds = 3;
+        seconds = ParkourGhost.getPlugin().getConfig().getInt("playback.start-second");
     }
 
     public void update() {
@@ -31,6 +32,11 @@ public class PlaybackCountdown {
             case 1:
                 currentPitch = 0.9f;
                 currentColor = ChatColor.RED;
+                break;
+            default:
+                currentPitch = 0.5f;
+                currentColor = ChatColor.GREEN;
+                break;
         }
         if(seconds == 0) {
             player.playSound(player, COUNTDOWN_SOUND, 1.0f, 1.0f);

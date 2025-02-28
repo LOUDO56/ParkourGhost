@@ -63,7 +63,11 @@ public class Playback {
         if(isPlayingBack) return false;
         isPlayingBack = true;
 
-        startCountdown();
+        if(ParkourGhost.getPlugin().getConfig().getBoolean("playback.countdown")) {
+            startCountdown();
+        } else {
+            run();
+        }
 
         return true;
 
@@ -81,12 +85,20 @@ public class Playback {
         ghostPlayer = new GhostPlayer(serverPlayer.serverLevel(), ghostGameProfile);
         ServerGamePacketListenerImpl connection = serverPlayer.connection;
 
+
+        boolean seeUsername = ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.see-username");
+        boolean ghostPlayerInvisible = ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.invisible");
+        
         Scoreboard scoreboard = new Scoreboard();
         PlayerTeam team = new PlayerTeam(scoreboard, "Ghost");
-        team.setSeeFriendlyInvisibles(true);
         team.setCollisionRule(Team.CollisionRule.NEVER);
-        //TODO: add option see nametag
-        //team.setNameTagVisibility(Team.Visibility.NEVER);
+        if(!seeUsername) {
+            team.setNameTagVisibility(Team.Visibility.NEVER);
+        }
+        if(ghostPlayerInvisible) {
+            ghostPlayer.setInvisible(true);
+            team.setSeeFriendlyInvisibles(true);
+        }
         scoreboard.addPlayerToTeam(serverPlayer.getDisplayName().getString(), team);
         scoreboard.addPlayerToTeam(ghostPlayer.getDisplayName().getString(), team);
 
@@ -94,8 +106,6 @@ public class Playback {
         SynchedEntityData dataWatcherGhost = ghostPlayer.getEntityData();
         EntityDataAccessor<Byte> ENTITY_LAYER = new EntityDataAccessor<>(17, EntityDataSerializers.BYTE);
         dataWatcherGhost.set(ENTITY_LAYER, (byte) 0b01111111);
-
-        ghostPlayer.setInvisible(true);
 
         MovementData firstLoc = recordingData.getMovementData().getFirst();
         ghostPlayer.moveTo(firstLoc.getX(), firstLoc.getY(), firstLoc.getZ());
@@ -105,19 +115,21 @@ public class Playback {
 
 
         serverPlayer.serverLevel().addFreshEntity(ghostPlayer);
-        serverPlayer.connection.send(new ClientboundLevelParticlesPacket(
-                ParticleTypes.CLOUD,
-                false,
-                true,
-                ghostPlayer.getX(),
-                ghostPlayer.getY(),
-                ghostPlayer.getZ(),
-                0.5F,
-                1.3F,
-                0.5F,
-                0.05F,
-                50
-        ));
+        if(ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.particles-apparition")) {
+            serverPlayer.connection.send(new ClientboundLevelParticlesPacket(
+                    ParticleTypes.CLOUD,
+                    false,
+                    true,
+                    ghostPlayer.getX(),
+                    ghostPlayer.getY(),
+                    ghostPlayer.getZ(),
+                    0.5F,
+                    1.3F,
+                    0.5F,
+                    0.05F,
+                    50
+            ));
+        }
     }
 
     public void run() {

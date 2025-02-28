@@ -1,0 +1,8 @@
+ghostplayer:
+  see-username: true
+  invisible: true
+  particles-apparition: true
+
+playback:
+  countdown: true
+  start-second: 3

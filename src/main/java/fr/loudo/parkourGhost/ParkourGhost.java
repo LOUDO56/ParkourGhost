@@ -26,6 +26,7 @@ public final class ParkourGhost extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ParkourEvents(), this);
 
         PlayersDataManager.folderInit();
+        saveDefaultConfig();
 
 
 
