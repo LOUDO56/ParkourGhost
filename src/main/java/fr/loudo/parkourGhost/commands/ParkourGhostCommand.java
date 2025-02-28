@@ -21,22 +21,23 @@ public class ParkourGhostCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 
         if(sender instanceof Player p) {
-            if(args[0].isEmpty()) {
-                p.sendMessage(ChatColor.RED + "Please, put the course name.");
+            if(Arrays.stream(args).toList().isEmpty()) {
+                sendHelp(p);
                 return true;
             }
 
             if(Arrays.asList(options).contains(args[0])) {
                 switch (args[0]) {
                     case "help":
-                        p.sendMessage(ChatColor.GREEN + "/parkourghost [course_name] - Challenge your best time ghost on a parkour.");
-                        if(p.hasPermission("parkourghost.admin")) {
-                            p.sendMessage(ChatColor.GREEN + "/parkourghost reload - Reload Parkour Ghost configuration.");
-                        }
+                        sendHelp(p);
                         break;
                     case "reload":
                         ParkourGhost.getPlugin().reloadConfig();
                         p.sendMessage(ChatColor.GREEN + "Successfully reloaded ParkourGhost config!");
+                        break;
+                    default:
+                        sendHelp(p);
+                        break;
                 }
                 return true;
             }
@@ -48,5 +49,12 @@ public class ParkourGhostCommand implements CommandExecutor {
         }
 
         return true;
+    }
+
+    private void sendHelp(Player p) {
+        p.sendMessage(ChatColor.GREEN + "/parkourghost [course_name] - Challenge your best time ghost on a parkour.");
+        if(p.hasPermission("parkourghost.admin")) {
+            p.sendMessage(ChatColor.GREEN + "/parkourghost reload - Reload Parkour Ghost configuration.");
+        }
     }
 }
