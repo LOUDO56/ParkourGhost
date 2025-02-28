@@ -32,8 +32,12 @@ public class ParkourGhostCommand implements CommandExecutor {
                         sendHelp(p);
                         break;
                     case "reload":
-                        ParkourGhost.getPlugin().reloadConfig();
-                        p.sendMessage(ChatColor.GREEN + "Successfully reloaded ParkourGhost config!");
+                        if(p.hasPermission("parkourghost.admin")) {
+                            ParkourGhost.getPlugin().reloadConfig();
+                            p.sendMessage(ChatColor.GREEN + "Successfully reloaded ParkourGhost config!");
+                        } else {
+                            p.sendMessage(ChatColor.RED + "No record found for this parkour.");
+                        }
                         break;
                     default:
                         sendHelp(p);
