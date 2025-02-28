@@ -1,25 +1,20 @@
 package fr.loudo.parkourGhost.recordings;
 
 import fr.loudo.parkourGhost.ParkourGhost;
-import fr.loudo.parkourGhost.data.PlayersDataManager;
+import fr.loudo.parkourGhost.manager.PlayersDataManager;
 import fr.loudo.parkourGhost.recordings.actions.ActionPlayer;
 import fr.loudo.parkourGhost.recordings.actions.ActionType;
-import fr.loudo.parkourGhost.recordings.actions.ChangePose;
+import fr.loudo.parkourGhost.recordings.actions.PlayerPoseChange;
 import fr.loudo.parkourGhost.recordings.actions.MovementData;
 import io.github.a5h73y.parkour.Parkour;
 import io.github.a5h73y.parkour.type.player.session.ParkourSession;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Pose;
-import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Recording {
@@ -55,7 +50,7 @@ public class Recording {
                 recordingData.getMovementData().add(movementData);
 
                 if(serverPlayer.getPose() != lastPos.get()) {
-                    recordingData.getActionsPlayer().put(tick, new ChangePose(serverPlayer.getPose()));
+                    recordingData.getActionsPlayer().put(tick, new PlayerPoseChange(serverPlayer.getPose()));
                 }
                 lastPos.set(serverPlayer.getPose());
                 tick++;

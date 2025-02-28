@@ -2,11 +2,11 @@ package fr.loudo.parkourGhost.recordings.actions;
 
 import net.minecraft.world.entity.Pose;
 
-public class ChangePose extends ActionPlayer {
+public class PlayerPoseChange extends ActionPlayer {
 
     private Pose pose;
 
-    public ChangePose(Pose pose) {
+    public PlayerPoseChange(Pose pose) {
         super(ActionType.POSE);
         this.pose = pose;
     }

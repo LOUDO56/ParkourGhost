@@ -16,7 +16,7 @@ public class ActionPlayerDeserliazer implements JsonDeserializer<ActionPlayer> {
         if (actionType == ActionType.POSE) {
             if (!jsonObject.has("pose")) return null;
             Pose pose = Pose.valueOf(jsonObject.get("pose").getAsString());
-            return new ChangePose(pose);
+            return new PlayerPoseChange(pose);
         }
 
         return new ActionPlayer(actionType);

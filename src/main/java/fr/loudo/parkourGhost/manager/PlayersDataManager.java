@@ -1,8 +1,9 @@
-package fr.loudo.parkourGhost.data;
+package fr.loudo.parkourGhost.manager;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fr.loudo.parkourGhost.ParkourGhost;
+import fr.loudo.parkourGhost.data.player.PlayerData;
 import fr.loudo.parkourGhost.recordings.RecordingData;
 import fr.loudo.parkourGhost.recordings.actions.ActionPlayer;
 import fr.loudo.parkourGhost.recordings.actions.ActionPlayerDeserliazer;

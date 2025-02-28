@@ -1,11 +1,8 @@
-package fr.loudo.parkourGhost.data;
+package fr.loudo.parkourGhost.data.player;
 
 import fr.loudo.parkourGhost.recordings.RecordingData;
-import fr.loudo.parkourGhost.recordings.actions.MovementData;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class PlayerData {
 

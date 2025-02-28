@@ -1,5 +1,6 @@
-package fr.loudo.parkourGhost.data;
+package fr.loudo.parkourGhost.manager;
 
+import fr.loudo.parkourGhost.data.player.PlayerData;
 import fr.loudo.parkourGhost.recordings.RecordingData;
 import fr.loudo.parkourGhost.playbacks.Playback;
 import fr.loudo.parkourGhost.recordings.Recording;
@@ -9,7 +10,7 @@ import org.bukkit.entity.Player;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class ParkourData {
+public class ParkourGhostManager {
 
     private static final HashMap<Player, Recording> SERVER_PLAYER_RECORDING_HASH_MAP = new HashMap<>();
     private static final HashMap<Player, Playback> SERVER_PLAYER_PLAYBACK_HASH_MAP = new HashMap<>();

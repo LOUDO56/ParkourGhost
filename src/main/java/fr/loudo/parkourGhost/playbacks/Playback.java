@@ -3,10 +3,10 @@ package fr.loudo.parkourGhost.playbacks;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import fr.loudo.parkourGhost.ParkourGhost;
-import fr.loudo.parkourGhost.data.ParkourData;
+import fr.loudo.parkourGhost.manager.ParkourGhostManager;
 import fr.loudo.parkourGhost.recordings.RecordingData;
 import fr.loudo.parkourGhost.recordings.actions.ActionPlayer;
-import fr.loudo.parkourGhost.recordings.actions.ChangePose;
+import fr.loudo.parkourGhost.recordings.actions.PlayerPoseChange;
 import fr.loudo.parkourGhost.recordings.actions.MovementData;
 import fr.loudo.parkourGhost.utils.GhostPlayer;
 import io.github.a5h73y.parkour.Parkour;
@@ -132,7 +132,7 @@ public class Playback {
                                 ghostPlayer.swing(InteractionHand.MAIN_HAND);
                                 break;
                             case POSE:
-                                Pose pose = ((ChangePose) actionPlayer).getPose();
+                                Pose pose = ((PlayerPoseChange) actionPlayer).getPose();
                                 ghostPlayer.setPose(pose);
                                 break;
                         }
@@ -152,7 +152,7 @@ public class Playback {
                 playbackCountdown.update();
                 if(playbackCountdown.getSeconds() < 0) {
                     playbackCountdown.getPlayback().run();
-                    ParkourData.getCurrentPlayerRecording(player).start();
+                    ParkourGhostManager.getCurrentPlayerRecording(player).start();
                     this.cancel();
                 }
                 if(!Parkour.getInstance().getParkourSessionManager().isPlaying(player)) {
