@@ -7,13 +7,15 @@ public class MovementData {
 
     private double x, y, z;
     private float xRot, yRot;
+    private byte headYRot;
 
-    public MovementData(double x, double y, double z, float xRot, float yRot) {
+    public MovementData(double x, double y, double z, float xRot, float yRot, byte headYRot) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.xRot = xRot;
         this.yRot = yRot;
+        this.headYRot = headYRot;
     }
 
     public static MovementData getMovementDataFromPlayer(Player player) {
@@ -26,7 +28,8 @@ public class MovementData {
                 pPosition.getY(),
                 pPosition.getZ(),
                 xRot,
-                yRot
+                yRot,
+                (byte) (yRot * 256.0F / 360.0F)
         );
     }
 
@@ -55,4 +58,7 @@ public class MovementData {
         return yRot;
     }
 
+    public byte getHeadYRot() {
+        return headYRot;
+    }
 }

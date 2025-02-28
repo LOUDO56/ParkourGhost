@@ -156,7 +156,7 @@ public class Playback {
                         pos.getxRot()
                 );
                 serverPlayer.connection.send(new ClientboundEntityPositionSyncPacket(ghostPlayer.getId(), positionMoveRotation, false));
-                serverPlayer.connection.send(new ClientboundRotateHeadPacket(ghostPlayer, (byte) (pos.getyRot() * 256.0F / 360.0F)));
+                serverPlayer.connection.send(new ClientboundRotateHeadPacket(ghostPlayer, pos.getHeadYRot()));
 
                 if(!recordingData.getActionsPlayer().isEmpty()) {
                     ActionPlayer actionPlayer = recordingData.getActionsPlayer().get(tick);
