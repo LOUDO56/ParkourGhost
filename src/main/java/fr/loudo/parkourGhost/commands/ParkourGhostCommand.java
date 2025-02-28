@@ -16,9 +16,16 @@ public class ParkourGhostCommand implements CommandExecutor {
 
         if(sender instanceof Player p) {
             String courseName = args[0];
+            if(args[0].isEmpty()) {
+                p.sendMessage(ChatColor.RED + "Please, put the course name.");
+                return true;
+            }
 
-            ParkourData.joinPlayerParkourAndStartPlayback(p, courseName);
-            p.sendMessage(ChatColor.GREEN + "Joined");
+            if(ParkourData.joinPlayerParkourAndStartPlayback(p, courseName.toLowerCase())) {
+                p.sendMessage(ChatColor.GREEN + "Joined");
+            } else {
+                p.sendMessage(ChatColor.RED + "No record found for this parkour.");
+            }
 
         }
 

@@ -1,15 +1,13 @@
 package fr.loudo.parkourGhost.data;
 
 import fr.loudo.parkourGhost.recordings.RecordingData;
-import fr.loudo.parkourGhost.recordings.actions.MovementData;
-import fr.loudo.parkourGhost.recordings.Playback;
+import fr.loudo.parkourGhost.playbacks.Playback;
 import fr.loudo.parkourGhost.recordings.Recording;
 import io.github.a5h73y.parkour.Parkour;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 
 public class ParkourData {
 
@@ -22,32 +20,35 @@ public class ParkourData {
 
         Recording recording = new Recording(courseName, player);
         SERVER_PLAYER_RECORDING_HASH_MAP.put(player, recording);
-        recording.start();
+
+        // If the player is playing a playback, we will start the recording after the countdown.
+        if(SERVER_PLAYER_PLAYBACK_HASH_MAP.get(player) == null) {
+            recording.start();
+        }
+
+        return true;
+    }
+
+    public static boolean restartPlayerParkour(Player player, String courseName) {
+
+        if(!SERVER_PLAYER_RECORDING_HASH_MAP.containsKey(player)) return false;
+
+        Playback currentPlayback = SERVER_PLAYER_PLAYBACK_HASH_MAP.get(player);
+        stopRecordOrPlayback(player, true);
+
+        if(currentPlayback != null) {
+            startPlaybackOfPlayer(player, courseName);
+        }
+        joinPlayerParkour(player, courseName);
 
         return true;
     }
 
     public static boolean joinPlayerParkourAndStartPlayback(Player player, String courseName) {
 
-        if(SERVER_PLAYER_PLAYBACK_HASH_MAP.containsKey(player)) return false;
+        if(!startPlaybackOfPlayer(player, courseName)) return false;
 
-        startPlaybackOfPlayer(player, courseName);
         Parkour.getInstance().getPlayerManager().joinCourse(player, courseName);
-
-        return true;
-    }
-
-    public static boolean leavePlayerParkour(Player player, boolean force) {
-
-        Recording recording = SERVER_PLAYER_RECORDING_HASH_MAP.get(player);
-        if(recording == null) return false;
-
-        SERVER_PLAYER_RECORDING_HASH_MAP.remove(player, recording);
-        recording.stop(force);
-
-        if(SERVER_PLAYER_PLAYBACK_HASH_MAP.containsKey(player)) {
-            stopPlaybackOfPlayer(player);
-        }
 
         return true;
     }
@@ -58,34 +59,40 @@ public class ParkourData {
         try {
             playerData = PlayersDataManager.getRecordingData(player);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Couldn't get player recording data: " + e);
         }
+
+        if(playerData == null) return false;
 
         HashMap<String, RecordingData> recordedRuns = playerData.getRecordedRuns();
         if(!recordedRuns.containsKey(courseName)) {
             return false;
         }
 
-        Playback playback = new Playback(recordedRuns.get(courseName), player);
-        if(!SERVER_PLAYER_PLAYBACK_HASH_MAP.containsKey(player)) {
-            SERVER_PLAYER_PLAYBACK_HASH_MAP.put(player, playback);
+        Playback currentPlayback = SERVER_PLAYER_PLAYBACK_HASH_MAP.get(player);
+        if(currentPlayback != null) {
+            currentPlayback.stop();
         }
+
+        Playback playback = new Playback(recordedRuns.get(courseName), player);
+        SERVER_PLAYER_PLAYBACK_HASH_MAP.put(player, playback);
         playback.start();
 
         return true;
 
     }
 
-    public static boolean stopPlaybackOfPlayer(Player player) {
+    public static void stopRecordOrPlayback(Player player, boolean force) {
         Playback playback = SERVER_PLAYER_PLAYBACK_HASH_MAP.get(player);
-        if(playback == null) return false;
-
-        SERVER_PLAYER_PLAYBACK_HASH_MAP.remove(player, playback);
-        playback.stop();
-
-        return true;
-
-
+        if(playback != null) {
+            playback.stop();
+            SERVER_PLAYER_PLAYBACK_HASH_MAP.remove(player, playback);
+        }
+        Recording recording = SERVER_PLAYER_RECORDING_HASH_MAP.get(player);
+        if(recording != null) {
+            recording.stop(force);
+            SERVER_PLAYER_RECORDING_HASH_MAP.remove(player, recording);
+        }
     }
 
     public static Recording getCurrentPlayerRecording(Player player) {

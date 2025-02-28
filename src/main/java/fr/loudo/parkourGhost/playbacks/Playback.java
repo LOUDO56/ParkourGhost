@@ -1,14 +1,15 @@
-package fr.loudo.parkourGhost.recordings;
+package fr.loudo.parkourGhost.playbacks;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import fr.loudo.parkourGhost.ParkourGhost;
+import fr.loudo.parkourGhost.data.ParkourData;
+import fr.loudo.parkourGhost.recordings.RecordingData;
 import fr.loudo.parkourGhost.recordings.actions.ActionPlayer;
-import fr.loudo.parkourGhost.recordings.actions.ActionType;
 import fr.loudo.parkourGhost.recordings.actions.ChangePose;
 import fr.loudo.parkourGhost.recordings.actions.MovementData;
 import fr.loudo.parkourGhost.utils.GhostPlayer;
-import net.minecraft.network.chat.Component;
+import io.github.a5h73y.parkour.Parkour;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -18,46 +19,55 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.PositionMoveRotation;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
-import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Playback {
 
     private RecordingData recordingData;
-    private ServerPlayer player;
+    private ServerPlayer serverPlayer;
+    private Player player;
     private ServerPlayer ghostPlayer;
     private boolean isPlayingBack;
     private int tick;
 
     public Playback(RecordingData recordingData, Player player) {
         this.recordingData = recordingData;
-        this.player = ((CraftPlayer) player).getHandle();
+        this.serverPlayer = ((CraftPlayer) player).getHandle();
+        this.player = player;
         isPlayingBack = false;
     }
 
     public boolean start() {
         if(isPlayingBack) return false;
-        
-        GameProfile ghostGameProfile = new GameProfile(UUID.randomUUID(), player.displayName);
-        GameProfile playerProfile = player.getGameProfile();
+
+        startCountdown();
+
+        return true;
+
+    }
+
+    private void createGhostPlayer() {
+        GameProfile ghostGameProfile = new GameProfile(UUID.randomUUID(), serverPlayer.displayName);
+        GameProfile playerProfile = serverPlayer.getGameProfile();
 
         Property textures = playerProfile.getProperties().get("textures").iterator().next();
         if(textures != null) {
             ghostGameProfile.getProperties().put("textures", new Property("textures", textures.value(), textures.signature()));
         }
 
-        ghostPlayer = new GhostPlayer(player.serverLevel(), ghostGameProfile);
-        ServerGamePacketListenerImpl connection = player.connection;
+        ghostPlayer = new GhostPlayer(serverPlayer.serverLevel(), ghostGameProfile);
+        ServerGamePacketListenerImpl connection = serverPlayer.connection;
 
         Scoreboard scoreboard = new Scoreboard();
         PlayerTeam team = new PlayerTeam(scoreboard, "Ghost");
@@ -65,7 +75,7 @@ public class Playback {
         team.setCollisionRule(Team.CollisionRule.NEVER);
         //TODO: add option see nametag
         //team.setNameTagVisibility(Team.Visibility.NEVER);
-        scoreboard.addPlayerToTeam(player.getDisplayName().getString(), team);
+        scoreboard.addPlayerToTeam(serverPlayer.getDisplayName().getString(), team);
         scoreboard.addPlayerToTeam(ghostPlayer.getDisplayName().getString(), team);
 
         // Enable all skin layers
@@ -77,25 +87,18 @@ public class Playback {
 
         MovementData firstLoc = recordingData.getMovementData().getFirst();
         ghostPlayer.moveTo(firstLoc.getX(), firstLoc.getY(), firstLoc.getZ());
-        //BlockPos blockpos = new BlockPos((int) firstLoc.getX(), (int)  firstLoc.getY(), (int) firstLoc.getZ());
 
         connection.send(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ghostPlayer));
-        //connection.send(new ClientboundAddEntityPacket(ghostPlayer, 147, blockpos)); // id 147 from https://minecraft.wiki/w/Minecraft_Wiki:Projects/wiki.vg_merge/Entity_metadata#Entities
-        //connection.send(new ClientboundSetEntityDataPacket(ghostPlayer.getId(), dataWatcherGhost.getNonDefaultValues()));
         connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
 
-        player.serverLevel().addFreshEntity(ghostPlayer);
+        serverPlayer.serverLevel().addFreshEntity(ghostPlayer);
 
         isPlayingBack = true;
-
-        run();
-
-        return true;
-
     }
 
-    private void run() {
+    public void run() {
 
+        createGhostPlayer();
         tick = 0;
 
         new BukkitRunnable() {
@@ -110,15 +113,20 @@ public class Playback {
                 }
 
                 MovementData pos = recordingData.getMovementData().get(tick);
-                ghostPlayer.setPos(pos.getX(), pos.getY(), pos.getZ());
-                ghostPlayer.setXRot(pos.getxRot());
-                ghostPlayer.setYRot(pos.getyRot());
-                ghostPlayer.setYHeadRot(pos.getyRot());
+
+                PositionMoveRotation positionMoveRotation = new PositionMoveRotation(
+                        new Vec3(pos.getX(), pos.getY(), pos.getZ()),
+                        new Vec3(0, 0, 0),
+                        pos.getyRot(),
+                        pos.getxRot()
+                );
+
+                serverPlayer.connection.send(new ClientboundEntityPositionSyncPacket(ghostPlayer.getId(), positionMoveRotation, false));
+                serverPlayer.connection.send(new ClientboundRotateHeadPacket(ghostPlayer, (byte) (pos.getyRot() * 256.0F / 360.0F)));
 
                 if(!recordingData.getActionsPlayer().isEmpty()) {
                     ActionPlayer actionPlayer = recordingData.getActionsPlayer().get(tick);
                     if(actionPlayer != null) {
-                        player.sendSystemMessage(Component.literal(actionPlayer.getActionType().name()));
                         switch (actionPlayer.getActionType()) {
                             case SWING:
                                 ghostPlayer.swing(InteractionHand.MAIN_HAND);
@@ -135,13 +143,44 @@ public class Playback {
         }.runTaskTimer(ParkourGhost.getPlugin(), 0L, 1L);
     }
 
+    private void startCountdown() {
+        PlaybackCountdown playbackCountdown = new PlaybackCountdown(player, this);
+        MovementData firstLoc = recordingData.getMovementData().getFirst();
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                playbackCountdown.update();
+                if(playbackCountdown.getSeconds() < 0) {
+                    playbackCountdown.getPlayback().run();
+                    ParkourData.getCurrentPlayerRecording(player).start();
+                    this.cancel();
+                }
+                if(!Parkour.getInstance().getParkourSessionManager().isPlaying(player)) {
+                    this.cancel();
+                }
+            }
+        }.runTaskTimer(ParkourGhost.getPlugin(), 0L, 20L);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                player.teleport(new Location(player.getWorld(), firstLoc.getX(), firstLoc.getY(), firstLoc.getZ()));
+                if(playbackCountdown.getSeconds() < 0) {
+                    this.cancel();
+                }
+                if(!Parkour.getInstance().getParkourSessionManager().isPlaying(player)) {
+                    this.cancel();
+                }
+            }
+        }.runTaskTimer(ParkourGhost.getPlugin(), 0L, 1L);
+    }
+
     public boolean stop() {
         if(!isPlayingBack) return false;
 
         isPlayingBack = false;
 
         ghostPlayer.remove(Entity.RemovalReason.KILLED);
-        player.connection.send(new ClientboundPlayerInfoRemovePacket(List.of(ghostPlayer.getUUID())));
+        serverPlayer.connection.send(new ClientboundPlayerInfoRemovePacket(List.of(ghostPlayer.getUUID())));
 
         return true;
     }
