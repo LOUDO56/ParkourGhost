@@ -18,17 +18,16 @@ import java.util.List;
 
 public class ParkourGhostTabCompleter implements TabCompleter {
 
-    private static final List<String> ARG1_OPTIONS = Arrays.asList("help", "play", "reload");
+    private static final List<String> ARG1_OPTIONS = Arrays.asList("help", "play");
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
         List<String> coursesNameCompleted = getCompletedCourse((Player) sender);
         if (args.length == 1) {
+            completions.addAll(ARG1_OPTIONS);
             if (sender.hasPermission("parkourghost.admin")) {
-                completions.addAll(ARG1_OPTIONS);
-            } else {
-                completions.add("play");
+                completions.add("reload");
             }
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("play")) {

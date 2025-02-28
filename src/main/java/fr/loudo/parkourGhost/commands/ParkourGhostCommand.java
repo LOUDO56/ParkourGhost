@@ -56,7 +56,7 @@ public class ParkourGhostCommand implements CommandExecutor {
     }
 
     private void sendHelp(Player p) {
-        p.sendMessage(ChatColor.GREEN + "/parkourghost [course_name] - Challenge your best time ghost on a parkour.");
+        p.sendMessage(ChatColor.GREEN + "/parkourghost play [course_name] - Challenge your best time ghost on a parkour.");
         if(p.hasPermission("parkourghost.admin")) {
             p.sendMessage(ChatColor.GREEN + "/parkourghost reload - Reload Parkour Ghost configuration.");
         }
