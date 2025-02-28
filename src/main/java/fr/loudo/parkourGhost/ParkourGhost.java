@@ -1,6 +1,7 @@
 package fr.loudo.parkourGhost;
 
 import fr.loudo.parkourGhost.commands.ParkourGhostCommand;
+import fr.loudo.parkourGhost.commands.ParkourGhostTabCompleter;
 import fr.loudo.parkourGhost.manager.PlayersDataManager;
 import fr.loudo.parkourGhost.events.ParkourEvents;
 import org.bukkit.plugin.Plugin;
@@ -22,6 +23,7 @@ public final class ParkourGhost extends JavaPlugin {
         }
 
         getCommand("parkourghost").setExecutor(new ParkourGhostCommand());
+        getCommand("parkourghost").setTabCompleter(new ParkourGhostTabCompleter());
 
         getServer().getPluginManager().registerEvents(new ParkourEvents(), this);
 

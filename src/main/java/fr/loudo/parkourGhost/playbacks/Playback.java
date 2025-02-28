@@ -10,6 +10,7 @@ import fr.loudo.parkourGhost.recordings.actions.PlayerPoseChange;
 import fr.loudo.parkourGhost.recordings.actions.MovementData;
 import fr.loudo.parkourGhost.utils.GhostPlayer;
 import io.github.a5h73y.parkour.Parkour;
+import io.github.a5h73y.parkour.commands.ParkourAutoTabCompleter;
 import io.github.a5h73y.parkour.type.checkpoint.Checkpoint;
 import io.github.a5h73y.parkour.type.course.Course;
 import net.minecraft.core.particles.ParticleOptions;
@@ -158,7 +159,6 @@ public class Playback {
                         pos.getyRot(),
                         pos.getxRot()
                 );
-
                 serverPlayer.connection.send(new ClientboundEntityPositionSyncPacket(ghostPlayer.getId(), positionMoveRotation, false));
                 serverPlayer.connection.send(new ClientboundRotateHeadPacket(ghostPlayer, (byte) (pos.getyRot() * 256.0F / 360.0F)));
 

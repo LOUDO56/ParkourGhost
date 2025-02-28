@@ -10,4 +10,5 @@ depend:
 commands:
   parkourghost:
     aliases: paghost
+    usage: "/parkourghost <help|reload|play>"
     description: Join a parkour and challenge the ghost of the player's best time.

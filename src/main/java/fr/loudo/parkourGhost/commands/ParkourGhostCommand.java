@@ -2,6 +2,7 @@ package fr.loudo.parkourGhost.commands;
 
 import fr.loudo.parkourGhost.ParkourGhost;
 import fr.loudo.parkourGhost.manager.ParkourGhostManager;
+import io.github.a5h73y.parkour.Parkour;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,42 +15,41 @@ import java.util.Arrays;
 
 public class ParkourGhostCommand implements CommandExecutor {
 
-    private String[] options = {"help", "reload"};
-
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-
         if(sender instanceof Player p) {
             if(Arrays.stream(args).toList().isEmpty()) {
                 sendHelp(p);
                 return true;
             }
 
-            if(Arrays.asList(options).contains(args[0])) {
-                switch (args[0]) {
-                    case "help":
-                        sendHelp(p);
-                        break;
-                    case "reload":
-                        if(p.hasPermission("parkourghost.admin")) {
-                            ParkourGhost.getPlugin().reloadConfig();
-                            p.sendMessage(ChatColor.GREEN + "Successfully reloaded ParkourGhost config!");
-                        } else {
-                            p.sendMessage(ChatColor.RED + "No record found for this parkour.");
-                        }
-                        break;
-                    default:
-                        sendHelp(p);
-                        break;
-                }
-                return true;
-            }
+            switch (args[0].toLowerCase()) {
+                case "help":
+                    sendHelp(p);
+                    break;
+                case "reload":
+                    if(p.hasPermission("parkourghost.admin")) {
+                        ParkourGhost.getPlugin().reloadConfig();
+                        p.sendMessage(ChatColor.GREEN + "Successfully reloaded ParkourGhost config!");
+                    } else {
+                        p.sendMessage(ChatColor.RED + "No record found for this parkour.");
+                    }
+                    break;
 
-            if(!ParkourGhostManager.joinPlayerParkourAndStartPlayback(p, args[0].toLowerCase())) {
-                p.sendMessage(ChatColor.RED + "No record found for this parkour.");
-            }
+                case "play":
+                    if(args[1].isEmpty()) {
+                        p.sendMessage(ChatColor.RED + "Please, put a valid parkour name.");
+                        return true;
+                    }
+                    if(!ParkourGhostManager.joinPlayerParkourAndStartPlayback(p, args[1].toLowerCase())) {
+                        p.sendMessage(ChatColor.RED + "No record found for this parkour.");
+                    }
+                    break;
 
+                default:
+                    sendHelp(p);
+                    break;
+            }
         }
 
         return true;
