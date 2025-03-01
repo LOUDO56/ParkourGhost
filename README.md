@@ -22,6 +22,9 @@ parkourghost.admin - Reloading the config.
 
 
 Showcase:
+
+
+
 https://github.com/user-attachments/assets/36d0c4ed-9861-4586-a707-7cfad098703d
 
 
