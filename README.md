@@ -21,7 +21,7 @@ It only works from 1.21 to 1.21.4 since I used NMS from this version specificall
 parkourghost.admin - Reloading the config.
 
 
-Showcase:
+## Showcase:
 
 
 
