@@ -1,5 +1,6 @@
 package fr.loudo.parkourGhost.commands;
 
+import fr.loudo.parkourGhost.data.player.PlayerData;
 import fr.loudo.parkourGhost.manager.PlayersDataManager;
 import fr.loudo.parkourGhost.recordings.RecordingData;
 import org.bukkit.command.Command;
@@ -37,8 +38,13 @@ public class ParkourGhostTabCompleter implements TabCompleter {
 
     private List<String> getRecordedCourses(Player p) {
         try {
-            HashMap<String, RecordingData> recordingData = PlayersDataManager.getRecordingData(p).getRecordedRuns();
-            return new ArrayList<>(recordingData.keySet());
+            List<String> result = new ArrayList<>();
+            PlayerData playerData = PlayersDataManager.getRecordingData(p);
+            if(playerData != null) {
+                HashMap<String, RecordingData> recordingData = playerData.getRecordedRuns();
+                result.addAll(recordingData.keySet());
+            }
+            return result;
         } catch (IOException e) {
             throw new RuntimeException("Couldn't get recorded courses of " + p.getName() + ": " + e);
         }
