@@ -14,8 +14,8 @@ It only works from 1.21 to 1.21.4 since I used NMS from this version specificall
 - Configurable
 
 ## Command:
-/parkourghost reload - Reload config. (For admin)
-/parkourghost play [parkour_name] - Challenge your best time on this parkour with your ghost.
+- /parkourghost play [parkour_name] - Challenge your best time on this parkour with your ghost.
+- /parkourghost reload - Reload config. (For admin)
 
 ## Permission:
 parkourghost.admin - Reloading the config.
