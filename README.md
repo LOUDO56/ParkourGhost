@@ -18,11 +18,11 @@ It only works from 1.21 to 1.21.4 since I used NMS from this version specificall
 - /parkourghost play [parkour_name] - Challenge your best time on this parkour with your ghost.
 - /parkourghost reload - Reload config. (For admin)
 
-## Permission:
+## Permission
 parkourghost.admin - Reloading the config.
 
 
-## Showcase:
+## Showcase
 
 
 
