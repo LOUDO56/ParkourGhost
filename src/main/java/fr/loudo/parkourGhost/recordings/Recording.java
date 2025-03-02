@@ -79,7 +79,7 @@ public class Recording {
                 ParkourSession pSession = Parkour.getInstance().getParkourSessionManager().getParkourSession(player);
                 if(Parkour.getInstance().getDatabaseManager().isBestCourseTime(pSession.getCourseName(), pSession.getTimeFinished())) {
                     save();
-                    player.sendMessage(ChatColor.GREEN + "New Personal Best. Challenge your ghost with /paghost " + pSession.getCourseName());
+                    player.sendMessage(ChatColor.GREEN + "New Personal Best. Challenge your ghost with /paghost play " + pSession.getCourseName());
                 }
             } catch (Exception e) {
                 player.sendMessage("An unexpected error occurred while saving your position data!");

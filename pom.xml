@@ -19,6 +19,7 @@
 
     <build>
         <defaultGoal>clean package</defaultGoal>
+        <finalName>ParkourGhost</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
