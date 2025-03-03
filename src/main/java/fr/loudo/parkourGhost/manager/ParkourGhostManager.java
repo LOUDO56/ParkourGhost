@@ -4,6 +4,7 @@ import fr.loudo.parkourGhost.data.player.PlayerData;
 import fr.loudo.parkourGhost.playbacks.Playback;
 import fr.loudo.parkourGhost.recordings.Recording;
 import fr.loudo.parkourGhost.recordings.RecordingData;
+import fr.loudo.parkourGhost.utils.TitleUtils;
 import io.github.a5h73y.parkour.Parkour;
 import org.bukkit.entity.Player;
 
@@ -50,7 +51,7 @@ public class ParkourGhostManager {
         if(!startPlaybackOfPlayer(player, courseName)) return false;
 
         Parkour.getInstance().getPlayerManager().joinCourse(player, courseName);
-        player.sendTitle();// Override title sent when joining a parkour from Parkour plugin
+        TitleUtils.send(player, "", "", 0, 0, 0); // Override title sent when joining a parkour from Parkour plugin
 
         return true;
     }

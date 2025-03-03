@@ -179,7 +179,7 @@ public class Playback {
 
     private void startCountdown() {
         onCountdown = true;
-        PlaybackCountdown playbackCountdown = new PlaybackCountdown(player, this);
+        PlaybackCountdown playbackCountdown = new PlaybackCountdown(player);
 
         Course course = Parkour.getInstance().getCourseManager().findByName(courseName);
         countdownTask = new BukkitRunnable() {
