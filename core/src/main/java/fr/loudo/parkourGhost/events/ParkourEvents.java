@@ -1,7 +1,7 @@
 package fr.loudo.parkourGhost.events;
 
 import fr.loudo.parkourGhost.manager.ParkourGhostManager;
-import fr.loudo.parkourGhost.recordings.Recording;
+import fr.loudo.parkourGhost.nms.RecordingInterface;
 import fr.loudo.parkourGhost.recordings.actions.ActionType;
 import io.github.a5h73y.parkour.Parkour;
 import io.github.a5h73y.parkour.event.ParkourFinishEvent;
@@ -46,7 +46,7 @@ public class ParkourEvents implements Listener {
     public void onPlayerSwing(PlayerInteractEvent event) {
         if(event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
             if(Parkour.getInstance().getParkourSessionManager().isPlaying(event.getPlayer())) {
-                Recording recording = ParkourGhostManager.getCurrentPlayerRecording(event.getPlayer());
+                RecordingInterface recording = ParkourGhostManager.getCurrentPlayerRecording(event.getPlayer());
                 if(recording != null) {
                     recording.addAction(ActionType.SWING);
                 }

@@ -1,4 +1,4 @@
-package fr.loudo.parkourGhost.utils;
+package nms_1_21.utils;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.network.Connection;

@@ -1,15 +1,17 @@
-package fr.loudo.parkourGhost.recordings;
+package nms_1_21;
 
 import fr.loudo.parkourGhost.ParkourGhost;
 import fr.loudo.parkourGhost.manager.PlayersDataManager;
+import fr.loudo.parkourGhost.nms.RecordingInterface;
+import fr.loudo.parkourGhost.recordings.RecordingData;
 import fr.loudo.parkourGhost.recordings.actions.ActionPlayer;
 import fr.loudo.parkourGhost.recordings.actions.ActionType;
 import fr.loudo.parkourGhost.recordings.actions.MovementData;
-import fr.loudo.parkourGhost.recordings.actions.PlayerPoseChange;
 import io.github.a5h73y.parkour.Parkour;
 import io.github.a5h73y.parkour.type.player.session.ParkourSession;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Pose;
+import fr.loudo.parkourGhost.recordings.actions.PlayerPoseChange;
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -19,7 +21,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class Recording {
+public class Recording implements RecordingInterface {
 
     private String courseName;
     private Player player;
@@ -28,12 +30,13 @@ public class Recording {
     private int tick;
     private BukkitTask recordTask;
 
-    public Recording(String courseName, Player player) {
+    public Recording(Player player, String courseName) {
         this.courseName = courseName;
         this.player = player;
         this.recordingData = new RecordingData();
     }
 
+    @Override
     public boolean start() {
         if(isRecording) return false;
 
@@ -52,7 +55,7 @@ public class Recording {
                 recordingData.getMovementData().add(movementData);
 
                 if(serverPlayer.getPose() != lastPos.get()) {
-                    recordingData.getActionsPlayer().put(tick, new PlayerPoseChange(serverPlayer.getPose()));
+                    recordingData.getActionsPlayer().put(tick, new PlayerPoseChange(player.getPose()));
                 }
                 lastPos.set(serverPlayer.getPose());
                 tick++;
@@ -62,10 +65,12 @@ public class Recording {
         return true;
     }
 
+    @Override
     public void addAction(ActionType actionType) {
         recordingData.getActionsPlayer().put(tick, new ActionPlayer(actionType));
     }
 
+    @Override
     public boolean stop(boolean force) {
         if(!isRecording) return false;
 
@@ -90,6 +95,7 @@ public class Recording {
         return true;
     }
 
+    @Override
     public void save() throws IOException {
         PlayersDataManager.writeRecordingData(recordingData, player, courseName);
     }

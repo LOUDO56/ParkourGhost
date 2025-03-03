@@ -1,7 +1,7 @@
 package fr.loudo.parkourGhost.recordings.actions;
 
 import com.google.gson.*;
-import net.minecraft.world.entity.Pose;
+import org.bukkit.entity.Pose;
 
 import java.lang.reflect.Type;
 

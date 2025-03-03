@@ -5,12 +5,15 @@ import fr.loudo.parkourGhost.commands.ParkourGhostTabCompleter;
 import fr.loudo.parkourGhost.events.ParkourEvents;
 import fr.loudo.parkourGhost.manager.PlayersDataManager;
 import org.bukkit.Bukkit;
+import org.bukkit.UnsafeValues;
+import org.bukkit.craftbukkit.v1_18_R2.util.CraftMagicNumbers;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ParkourGhost extends JavaPlugin {
 
     private static ParkourGhost plugin;
+    private static String version;
 
     @Override
     public void onEnable() {
@@ -31,6 +34,10 @@ public final class ParkourGhost extends JavaPlugin {
         PlayersDataManager.folderInit();
         saveDefaultConfig();
 
+        version = Bukkit.getBukkitVersion();
+        version = version.split("-")[0].replace(".", "_");
+        version = version.split("_")[0] + "_" + version.split("_")[1];
+        System.out.println(version);
 
 
     }
@@ -42,5 +49,9 @@ public final class ParkourGhost extends JavaPlugin {
 
     public static ParkourGhost getPlugin() {
         return plugin;
+    }
+
+    public static String getVersion() {
+        return version;
     }
 }

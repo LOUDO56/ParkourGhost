@@ -1,6 +1,6 @@
 package fr.loudo.parkourGhost.recordings.actions;
 
-import net.minecraft.world.entity.Pose;
+import org.bukkit.entity.Pose;
 
 public class PlayerPoseChange extends ActionPlayer {
 

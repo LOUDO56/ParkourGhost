@@ -1,14 +1,14 @@
-package fr.loudo.parkourGhost.playbacks;
+package nms_1_21;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import fr.loudo.parkourGhost.ParkourGhost;
 import fr.loudo.parkourGhost.manager.ParkourGhostManager;
+import fr.loudo.parkourGhost.nms.PlaybackInterface;
+import fr.loudo.parkourGhost.playbacks.PlaybackCountdown;
 import fr.loudo.parkourGhost.recordings.RecordingData;
 import fr.loudo.parkourGhost.recordings.actions.ActionPlayer;
 import fr.loudo.parkourGhost.recordings.actions.MovementData;
-import fr.loudo.parkourGhost.recordings.actions.PlayerPoseChange;
-import fr.loudo.parkourGhost.utils.GhostPlayer;
 import io.github.a5h73y.parkour.Parkour;
 import io.github.a5h73y.parkour.type.course.Course;
 import net.minecraft.core.particles.ParticleTypes;
@@ -20,7 +20,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
@@ -31,17 +30,19 @@ import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import nms_1_21.utils.GhostPlayer;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public class Playback {
+public class Playback implements PlaybackInterface {
 
     private RecordingData recordingData;
-    private ServerPlayer serverPlayer;
     private Player player;
-    private String courseName;
+    private ServerPlayer serverPlayer;
     private ServerPlayer ghostPlayer;
+    private String courseName;
     private boolean isPlayingBack;
     private int tick;
     private boolean onCountdown;
@@ -49,14 +50,16 @@ public class Playback {
     private BukkitTask blockPlayerTask;
     private BukkitTask ghostPlayerTask;
 
-    public Playback(RecordingData recordingData, Player player, String courseName) {
+
+    public Playback(Player player, RecordingData recordingData, String courseName) {
         this.recordingData = recordingData;
-        this.serverPlayer = ((CraftPlayer) player).getHandle();
         this.player = player;
+        this.serverPlayer = ((CraftPlayer)player).getHandle();
         this.courseName = courseName;
         isPlayingBack = false;
     }
 
+    @Override
     public boolean start() {
         if(isPlayingBack) return false;
         isPlayingBack = true;
@@ -64,7 +67,7 @@ public class Playback {
         if(ParkourGhost.getPlugin().getConfig().getBoolean("playback.countdown")) {
             startCountdown();
         } else {
-            run();
+            runPlayback();
         }
 
         return true;
@@ -75,8 +78,8 @@ public class Playback {
         GameProfile ghostGameProfile = new GameProfile(UUID.randomUUID(), serverPlayer.displayName);
         GameProfile playerProfile = serverPlayer.getGameProfile();
 
-        Property textures = playerProfile.getProperties().get("textures").iterator().next();
-        if(textures != null) {
+        if (playerProfile.getProperties().containsKey("textures")) {
+            Property textures = playerProfile.getProperties().get("textures").iterator().next();
             ghostGameProfile.getProperties().put("textures", new Property("textures", textures.value(), textures.signature()));
         }
 
@@ -86,7 +89,7 @@ public class Playback {
 
         boolean seeUsername = ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.see-username");
         boolean ghostPlayerInvisible = ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.invisible");
-        
+
         Scoreboard scoreboard = new Scoreboard();
         PlayerTeam team = new PlayerTeam(scoreboard, "Ghost");
         team.setCollisionRule(Team.CollisionRule.NEVER);
@@ -105,7 +108,7 @@ public class Playback {
         EntityDataAccessor<Byte> ENTITY_LAYER = new EntityDataAccessor<>(17, EntityDataSerializers.BYTE);
         dataWatcherGhost.set(ENTITY_LAYER, (byte) 0b01111111);
 
-        MovementData firstLoc = recordingData.getMovementData().getFirst();
+        MovementData firstLoc = recordingData.getMovementData().get(0);
         ghostPlayer.moveTo(firstLoc.getX(), firstLoc.getY(), firstLoc.getZ());
 
         connection.send(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ghostPlayer));
@@ -130,7 +133,8 @@ public class Playback {
         }
     }
 
-    public void run() {
+    @Override
+    public void runPlayback() {
 
         createGhostPlayer();
         onCountdown = false;
@@ -165,10 +169,10 @@ public class Playback {
                             case SWING:
                                 ghostPlayer.swing(InteractionHand.MAIN_HAND);
                                 break;
-                            case POSE:
-                                Pose pose = ((PlayerPoseChange) actionPlayer).getPose();
-                                ghostPlayer.setPose(pose);
-                                break;
+//                            case POSE:
+//                                Pose pose = ((PlayerPoseChange) actionPlayer).getPose();
+//                                ghostPlayer.setPose(pose);
+//                                break;
                         }
                     }
                 }
@@ -187,7 +191,7 @@ public class Playback {
             public void run() {
                 playbackCountdown.update();
                 if (playbackCountdown.getSeconds() < 0) {
-                    playbackCountdown.getPlayback().run();
+                    playbackCountdown.getPlayback().runPlayback();
                     ParkourGhostManager.getCurrentPlayerRecording(player).start();
                     this.cancel();
                 }
@@ -205,16 +209,18 @@ public class Playback {
         }.runTaskTimer(ParkourGhost.getPlugin(), 0L, 1L);
     }
 
+    @Override
     public boolean stop() {
         if(!isPlayingBack) return false;
+
+        if(blockPlayerTask != null) {
+            blockPlayerTask.cancel();
+            blockPlayerTask = null;
+        }
 
         if(countdownTask != null) {
             countdownTask.cancel();
             countdownTask = null;
-        }
-        if(blockPlayerTask != null) {
-            blockPlayerTask.cancel();
-            blockPlayerTask = null;
         }
 
         if(ghostPlayerTask != null) {
@@ -232,7 +238,4 @@ public class Playback {
         return true;
     }
 
-    public boolean isOnCountdown() {
-        return onCountdown;
-    }
 }
