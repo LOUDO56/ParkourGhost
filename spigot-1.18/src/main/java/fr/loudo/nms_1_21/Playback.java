@@ -11,7 +11,10 @@ import fr.loudo.parkourGhost.recordings.actions.ActionPlayer;
 import fr.loudo.parkourGhost.recordings.actions.MovementData;
 import io.github.a5h73y.parkour.Parkour;
 import io.github.a5h73y.parkour.type.course.Course;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -109,7 +112,7 @@ public class Playback implements PlaybackInterface {
         MovementData firstLoc = recordingData.getMovementData().get(0);
         ghostPlayer.moveTo(firstLoc.getX(), firstLoc.getY(), firstLoc.getZ());
 
-        connection.send(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ghostPlayer));
+        connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, ghostPlayer));
         connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
 
 
@@ -150,7 +153,16 @@ public class Playback implements PlaybackInterface {
 
                 MovementData pos = recordingData.getMovementData().get(tick);
 
-                serverPlayer.connection.send(new ClientboundEntityPositionSyncPacket(ghostPlayer.getId(), positionMoveRotation, false));
+                FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+                buf.setInt(0, ghostPlayer.getId());
+                buf.setDouble(0, pos.getX());
+                buf.setDouble(1, pos.getY());
+                buf.setDouble(2, pos.getZ());
+                buf.setByte(0, (byte) (pos.getyRot() * 255F / 360F));
+                buf.setByte(1, (byte) (pos.getxRot() * 255F / 360F));
+                buf.setBoolean(0, true);
+
+                serverPlayer.connection.send(new ClientboundTeleportEntityPacket(buf));
                 serverPlayer.connection.send(new ClientboundRotateHeadPacket(ghostPlayer, pos.getHeadYRot()));
 
                 if(!recordingData.getActionsPlayer().isEmpty()) {
@@ -221,7 +233,7 @@ public class Playback implements PlaybackInterface {
 
         if(ghostPlayer != null) {
             ghostPlayer.remove(Entity.RemovalReason.KILLED);
-            serverPlayer.connection.send(new ClientboundPlayerInfoRemovePacket(List.of(ghostPlayer.getUUID())));
+            serverPlayer.connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER, ghostPlayer));
         }
 
         isPlayingBack = false;
