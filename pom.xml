@@ -15,6 +15,7 @@
         <module>core</module>
         <module>spigot-1.21</module>
         <module>dist</module>
+        <module>spigot-1.18</module>
     </modules>
 
 

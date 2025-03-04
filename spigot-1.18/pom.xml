@@ -9,33 +9,28 @@
         <version>1.0.1</version>
     </parent>
 
-    <artifactId>ParkourGhost-core</artifactId>
+    <artifactId>spigot-1.18</artifactId>
 
     <repositories>
         <repository>
             <id>spigotmc-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
-        <repository>
-            <id>sonatype</id>
-            <url>https://oss.sonatype.org/content/groups/public/</url>
-        </repository>
     </repositories>
 
     <dependencies>
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
-            <version>1.18.2-R0.1-SNAPSHOT</version>
+            <groupId>fr.loudo</groupId>
+            <artifactId>ParkourGhost-core</artifactId>
+            <version>1.0.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.A5H73Y</groupId>
-            <artifactId>Parkour</artifactId>
-            <version>7.2.3</version>
-            <type>jar</type>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../libs/Parkour-7.2.3-RELEASE.jar</systemPath>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.18.2-R0.1-SNAPSHOT</version>
+            <classifier>remapped-mojang</classifier>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
