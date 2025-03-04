@@ -36,8 +36,9 @@ public final class ParkourGhost extends JavaPlugin {
 
         version = Bukkit.getBukkitVersion();
         version = version.split("-")[0].replace(".", "_");
-        version = version.split("_")[0] + "_" + version.split("_")[1];
-        System.out.println(version);
+        if(version.split("_").length > 2) {
+            version = version.split("_")[0] + "_" + version.split("_")[1];
+        }
 
 
     }

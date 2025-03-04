@@ -2,32 +2,25 @@ package fr.loudo.nms_1_18.utils;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.network.Connection;
-import net.minecraft.network.PacketSendListener;
-import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.stats.Stat;
 import net.minecraft.world.damagesource.DamageSource;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class GhostPlayer extends ServerPlayer
 {
-    private static final ClientInformation DEFAULT_CLIENT_INFO = ClientInformation.createDefault();
 
     public GhostPlayer(ServerLevel level, GameProfile profile)
     {
-        super(level.getServer(), level, profile, DEFAULT_CLIENT_INFO);
-        this.connection = new FakePlayerNetHandler(level.getServer(), this, profile);
+        super(level.getServer(), level, profile);
+        this.connection = new FakePlayerNetHandler(level.getServer(), this);
         setInvulnerable(true);
     }
 
@@ -43,9 +36,9 @@ public class GhostPlayer extends ServerPlayer
     {
         private static final Connection DUMMY_CONNECTION = new DummyConnection(PacketFlow.CLIENTBOUND);
 
-        public FakePlayerNetHandler(MinecraftServer server, ServerPlayer player, GameProfile profile)
+        public FakePlayerNetHandler(MinecraftServer server, ServerPlayer player)
         {
-            super(server, DUMMY_CONNECTION, player, new CommonListenerCookie(profile, 0, DEFAULT_CLIENT_INFO, false));
+            super(server, DUMMY_CONNECTION, player);
         }
 
         @Override public void tick() { }
@@ -67,8 +60,6 @@ public class GhostPlayer extends ServerPlayer
         @Override public void handleJigsawGenerate(ServerboundJigsawGeneratePacket packet) { }
         @Override public void handleSelectTrade(ServerboundSelectTradePacket packet) { }
         @Override public void handleEditBook(ServerboundEditBookPacket packet) { }
-        @Override public void handleEntityTagQuery(ServerboundEntityTagQueryPacket packet) { }
-        @Override public void handleBlockEntityTagQuery(ServerboundBlockEntityTagQueryPacket packet) { }
         @Override public void handleMovePlayer(ServerboundMovePlayerPacket packet) { }
         @Override public void teleport(double x, double y, double z, float yaw, float pitch) { }
         @Override public void handlePlayerAction(ServerboundPlayerActionPacket packet) { }
@@ -77,7 +68,6 @@ public class GhostPlayer extends ServerPlayer
         @Override public void handleTeleportToEntityPacket(ServerboundTeleportToEntityPacket packet) { }
         @Override public void handlePaddleBoat(ServerboundPaddleBoatPacket packet) { }
         @Override public void send(Packet<?> packet) { }
-        @Override public void send(Packet<?> packet, @Nullable PacketSendListener sendListener) { }
         @Override public void handleSetCarriedItem(ServerboundSetCarriedItemPacket packet) { }
         @Override public void handleChat(ServerboundChatPacket packet) { }
         @Override public void handleAnimate(ServerboundSwingPacket packet) { }
@@ -93,15 +83,14 @@ public class GhostPlayer extends ServerPlayer
         @Override public void handlePlayerAbilities(ServerboundPlayerAbilitiesPacket packet) { }
         @Override public void handleChangeDifficulty(ServerboundChangeDifficultyPacket packet) { }
         @Override public void handleLockDifficulty(ServerboundLockDifficultyPacket packet) { }
-        @Override public void ackBlockChangesUpTo(int sequence) { }
-        @Override public void handleChatCommand(ServerboundChatCommandPacket packet) { }
-        @Override public void handleChatAck(ServerboundChatAckPacket packet) { }
-        @Override public void addPendingMessage(PlayerChatMessage message) { }
-        @Override public void sendPlayerChatMessage(PlayerChatMessage message, ChatType.Bound boundChatType) { }
-        @Override public void sendDisguisedChatMessage(Component content, ChatType.Bound boundChatType) { }
-        @Override public void handleChatSessionUpdate(ServerboundChatSessionUpdatePacket packet) { }
-
-
+        @Override public void handlePickItem(ServerboundPickItemPacket packetplayinpickitem) { }
+        @Override public void handleEntityTagQuery(ServerboundEntityTagQuery packetplayinentitynbtquery) { }
+        @Override public void handleBlockEntityTagQuery(ServerboundBlockEntityTagQuery packetplayintilenbtquery) { }
+        @Override public void handleResourcePackResponse(ServerboundResourcePackPacket packetplayinresourcepackstatus) { }
+        @Override public void handlePong(ServerboundPongPacket serverboundpongpacket) { }
+        @Override public void handleKeepAlive(ServerboundKeepAlivePacket packetplayinkeepalive) { }
+        @Override public void handleClientInformation(ServerboundClientInformationPacket packetplayinsettings) { }
+        @Override public void handleCustomPayload(ServerboundCustomPayloadPacket packetplayincustompayload) { }
     }
 
     private static class DummyConnection extends Connection

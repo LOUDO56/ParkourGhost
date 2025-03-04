@@ -2,6 +2,7 @@ package fr.loudo.nms_1_18;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import fr.loudo.nms_1_18.utils.GhostPlayer;
 import fr.loudo.parkourGhost.ParkourGhost;
 import fr.loudo.parkourGhost.manager.ParkourGhostManager;
 import fr.loudo.parkourGhost.nms.PlaybackInterface;
@@ -30,7 +31,6 @@ import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import fr.loudo.nms_1_18.utils.GhostPlayer;
 
 import java.util.UUID;
 
