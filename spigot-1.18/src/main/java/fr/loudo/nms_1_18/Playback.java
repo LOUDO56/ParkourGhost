@@ -114,16 +114,14 @@ public class Playback implements PlaybackInterface {
         EntityDataAccessor<Byte> ENTITY_LAYER = new EntityDataAccessor<>(17, EntityDataSerializers.BYTE);
         dataWatcherGhost.set(ENTITY_LAYER, (byte) 0b01111111);
 
-        MovementData firstLoc = recordingData.getMovementData().get(0);
-        //ghostPlayer.moveTo(firstLoc.getX(), firstLoc.getY(), firstLoc.getZ());
+        connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, ghostPlayer));
+        //TpPacket.send(serverPlayer, ghostPlayer, firstLoc.getX(), firstLoc.getY(), firstLoc.getZ(), firstLoc.getxRot(), firstLoc.getyRot());
+        //connection.send(new ClientboundAddPlayerPacket(ghostPlayer));
+        //connection.send(new ClientboundSetEntityDataPacket(ghostPlayer.getId(), dataWatcherGhost, true));
+        connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
+
         ghostPlayer.setPos(serverPlayer.position());
         serverPlayer.getLevel().addFreshEntity(ghostPlayer);
-
-        connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, ghostPlayer));
-        connection.send(new ClientboundAddPlayerPacket(ghostPlayer));
-        //connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER, ghostPlayer));
-        connection.send(new ClientboundSetEntityDataPacket(ghostPlayer.getId(), dataWatcherGhost, true));
-        connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
 
         if(ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.particles-apparition")) {
             serverPlayer.connection.send(new ClientboundLevelParticlesPacket(
@@ -145,7 +143,7 @@ public class Playback implements PlaybackInterface {
     public void runPlayback() {
 
         createGhostPlayer();
-        onCountdown = false;
+
         tick = 0;
 
         ghostPlayerTask = new BukkitRunnable() {
@@ -169,7 +167,7 @@ public class Playback implements PlaybackInterface {
                     if(actionPlayer != null) {
                         switch (actionPlayer.getActionType()) {
                             case SWING:
-                                ghostPlayer.swing(InteractionHand.MAIN_HAND);
+                                serverPlayer.connection.send(new ClientboundAnimatePacket(ghostPlayer, 0));
                                 break;
 //                            case POSE:
 //                                Pose pose = ((PlayerPoseChange) actionPlayer).getPose();
@@ -192,8 +190,10 @@ public class Playback implements PlaybackInterface {
             @Override
             public void run() {
                 playbackCountdown.update();
-                if (playbackCountdown.getSeconds() < 0) {
+                if (playbackCountdown.getSeconds() == 0) {
                     playbackCountdown.getPlayback().runPlayback();
+                }
+                if (playbackCountdown.getSeconds() < 0) {
                     ParkourGhostManager.getCurrentPlayerRecording(player).start();
                     this.cancel();
                 }
@@ -231,7 +231,6 @@ public class Playback implements PlaybackInterface {
         }
 
         if(ghostPlayer != null) {
-            ghostPlayer.remove(Entity.RemovalReason.KILLED);
             serverPlayer.connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER, ghostPlayer));
             serverPlayer.connection.send(new ClientboundRemoveEntitiesPacket(ghostPlayer.getId()));
         }
