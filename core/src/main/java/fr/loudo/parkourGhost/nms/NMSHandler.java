@@ -13,7 +13,7 @@ public class NMSHandler {
     public static RecordingInterface getRecordingInstance(Player player, String courseName) {
 
         String version = ParkourGhost.getVersion();
-        String clazzName = "nms_" + version + ".Recording";
+        String clazzName = "fr.loudo.nms_" + version + ".Recording";
         try {
             Class<? extends RecordingInterface> clazz = (Class<? extends RecordingInterface>) Class.forName(clazzName);
             Constructor<?> constructor = clazz.getDeclaredConstructor(Player.class, String.class);
@@ -34,11 +34,10 @@ public class NMSHandler {
     public static PlaybackInterface getPlaybackInstance(Player player, RecordingData recordingData, String courseName) {
 
         String version = ParkourGhost.getVersion();
-        String clazzName = "nms_" + version + ".Playback";
+        String clazzName = "fr.loudo.nms_" + version + ".Playback";
 
         try {
             Class<? extends PlaybackInterface> clazz = (Class<? extends PlaybackInterface>) Class.forName(clazzName);
-            //return clazz.getConstructor().newInstance(player, recordingData, courseName);
             Constructor<?> constructor = clazz.getDeclaredConstructor(Player.class, RecordingData.class, String.class);
             return (PlaybackInterface) constructor.newInstance(player, recordingData, courseName);
         } catch (ClassNotFoundException e) {

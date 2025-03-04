@@ -1,4 +1,4 @@
-package nms_1_21;
+package fr.loudo.nms_1_21;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
@@ -30,9 +30,8 @@ import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import nms_1_21.utils.GhostPlayer;
+import fr.loudo.nms_1_21.utils.GhostPlayer;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
