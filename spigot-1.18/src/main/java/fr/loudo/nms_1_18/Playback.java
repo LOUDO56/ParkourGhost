@@ -3,6 +3,7 @@ package fr.loudo.nms_1_18;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import fr.loudo.nms_1_18.utils.GhostPlayer;
+import fr.loudo.nms_1_18.utils.TpPacket;
 import fr.loudo.parkourGhost.ParkourGhost;
 import fr.loudo.parkourGhost.manager.ParkourGhostManager;
 import fr.loudo.parkourGhost.nms.PlaybackInterface;
@@ -13,8 +14,11 @@ import fr.loudo.parkourGhost.recordings.actions.MovementData;
 import io.github.a5h73y.parkour.Parkour;
 import io.github.a5h73y.parkour.type.course.Course;
 import io.netty.buffer.Unpooled;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -23,6 +27,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
@@ -32,6 +37,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.UUID;
 
 public class Playback implements PlaybackInterface {
@@ -77,6 +84,7 @@ public class Playback implements PlaybackInterface {
         GameProfile playerProfile = serverPlayer.getGameProfile();
 
         if (playerProfile.getProperties().containsKey("textures")) {
+            System.out.println("Skin trouvé");
             Property textures = playerProfile.getProperties().get("textures").iterator().next();
             ghostGameProfile.getProperties().put("textures", new Property("textures", textures.getValue(), textures.getSignature()));
         }
@@ -107,20 +115,23 @@ public class Playback implements PlaybackInterface {
         dataWatcherGhost.set(ENTITY_LAYER, (byte) 0b01111111);
 
         MovementData firstLoc = recordingData.getMovementData().get(0);
-        ghostPlayer.moveTo(firstLoc.getX(), firstLoc.getY(), firstLoc.getZ());
+        //ghostPlayer.moveTo(firstLoc.getX(), firstLoc.getY(), firstLoc.getZ());
+        ghostPlayer.setPos(serverPlayer.position());
+        serverPlayer.getLevel().addFreshEntity(ghostPlayer);
 
         connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, ghostPlayer));
+        connection.send(new ClientboundAddPlayerPacket(ghostPlayer));
+        //connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER, ghostPlayer));
+        connection.send(new ClientboundSetEntityDataPacket(ghostPlayer.getId(), dataWatcherGhost, true));
         connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
 
-
-        serverPlayer.getLevel().addFreshEntity(ghostPlayer);
         if(ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.particles-apparition")) {
             serverPlayer.connection.send(new ClientboundLevelParticlesPacket(
                     ParticleTypes.CLOUD,
                     true,
-                    ghostPlayer.getX(),
-                    ghostPlayer.getY(),
-                    ghostPlayer.getZ(),
+                    serverPlayer.getX(),
+                    serverPlayer.getY(),
+                    serverPlayer.getZ(),
                     0.5F,
                     1.3F,
                     0.5F,
@@ -150,16 +161,7 @@ public class Playback implements PlaybackInterface {
 
                 MovementData pos = recordingData.getMovementData().get(tick);
 
-                FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-                buf.setInt(0, ghostPlayer.getId());
-                buf.setDouble(0, pos.getX());
-                buf.setDouble(1, pos.getY());
-                buf.setDouble(2, pos.getZ());
-                buf.setByte(0, (byte) (pos.getyRot() * 255F / 360F));
-                buf.setByte(1, (byte) (pos.getxRot() * 255F / 360F));
-                buf.setBoolean(0, true);
-
-                serverPlayer.connection.send(new ClientboundTeleportEntityPacket(buf));
+                TpPacket.send(serverPlayer, ghostPlayer, pos.getX(), pos.getY(), pos.getZ(), pos.getxRot(), pos.getyRot());
                 serverPlayer.connection.send(new ClientboundRotateHeadPacket(ghostPlayer, pos.getHeadYRot()));
 
                 if(!recordingData.getActionsPlayer().isEmpty()) {
@@ -231,6 +233,7 @@ public class Playback implements PlaybackInterface {
         if(ghostPlayer != null) {
             ghostPlayer.remove(Entity.RemovalReason.KILLED);
             serverPlayer.connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER, ghostPlayer));
+            serverPlayer.connection.send(new ClientboundRemoveEntitiesPacket(ghostPlayer.getId()));
         }
 
         isPlayingBack = false;

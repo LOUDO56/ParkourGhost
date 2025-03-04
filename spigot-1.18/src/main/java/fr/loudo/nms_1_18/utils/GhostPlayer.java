@@ -1,7 +1,9 @@
 package fr.loudo.nms_1_18.utils;
 
 import com.mojang.authlib.GameProfile;
+import io.netty.buffer.Unpooled;
 import net.minecraft.network.Connection;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
