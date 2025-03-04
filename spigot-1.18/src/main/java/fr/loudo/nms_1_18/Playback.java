@@ -1,4 +1,4 @@
-package fr.loudo.nms_1_21;
+package fr.loudo.nms_1_18;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
@@ -11,7 +11,6 @@ import fr.loudo.parkourGhost.recordings.actions.ActionPlayer;
 import fr.loudo.parkourGhost.recordings.actions.MovementData;
 import io.github.a5h73y.parkour.Parkour;
 import io.github.a5h73y.parkour.type.course.Course;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.FriendlyByteBuf;
@@ -23,7 +22,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
@@ -32,9 +30,8 @@ import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import fr.loudo.nms_1_21.utils.GhostPlayer;
+import fr.loudo.nms_1_18.utils.GhostPlayer;
 
-import java.util.List;
 import java.util.UUID;
 
 public class Playback implements PlaybackInterface {

@@ -1,4 +1,4 @@
-package fr.loudo.nms_1_21.utils;
+package fr.loudo.nms_1_18.utils;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.network.Connection;

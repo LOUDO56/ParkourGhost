@@ -1,4 +1,4 @@
-package fr.loudo.nms_1_21;
+package fr.loudo.nms_1_18;
 
 import fr.loudo.parkourGhost.ParkourGhost;
 import fr.loudo.parkourGhost.manager.PlayersDataManager;
