@@ -46,13 +46,11 @@ public class CheckVersion {
 
         if(!ParkourGhost.getPlugin().getDescription().getVersion().equals(latestVersion)) {
             newVersionAvailable = true;
-            notifyConsole();
+            ParkourGhost.getPlugin().getLogger().info("New update available: " + latestVersion);
+        } else {
+            ParkourGhost.getPlugin().getLogger().info("No update available.");
         }
 
-    }
-
-    public static void notifyConsole() {
-        if(newVersionAvailable) ParkourGhost.getPlugin().getLogger().info("New update available: " + latestVersion);
     }
 
     public static void notifyPlayer(Player player) {
