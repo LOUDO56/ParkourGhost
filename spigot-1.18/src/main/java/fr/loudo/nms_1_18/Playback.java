@@ -13,21 +13,13 @@ import fr.loudo.parkourGhost.recordings.actions.ActionPlayer;
 import fr.loudo.parkourGhost.recordings.actions.MovementData;
 import io.github.a5h73y.parkour.Parkour;
 import io.github.a5h73y.parkour.type.course.Course;
-import io.netty.buffer.Unpooled;
-import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.Connection;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
@@ -37,8 +29,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.UUID;
 
 public class Playback implements PlaybackInterface {
@@ -50,7 +40,6 @@ public class Playback implements PlaybackInterface {
     private String courseName;
     private boolean isPlayingBack;
     private int tick;
-    private boolean onCountdown;
     private BukkitTask countdownTask;
     private BukkitTask blockPlayerTask;
     private BukkitTask ghostPlayerTask;
@@ -68,6 +57,7 @@ public class Playback implements PlaybackInterface {
     public boolean start() {
         if(isPlayingBack) return false;
         isPlayingBack = true;
+        createGhostPlayer();
 
         if(ParkourGhost.getPlugin().getConfig().getBoolean("playback.countdown")) {
             startCountdown();
@@ -90,8 +80,6 @@ public class Playback implements PlaybackInterface {
         }
 
         ghostPlayer = new GhostPlayer(serverPlayer.getLevel(), ghostGameProfile);
-        ServerGamePacketListenerImpl connection = serverPlayer.connection;
-
 
         boolean seeUsername = ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.see-username");
         boolean ghostPlayerInvisible = ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.invisible");
@@ -109,27 +97,31 @@ public class Playback implements PlaybackInterface {
         scoreboard.addPlayerToTeam(serverPlayer.getDisplayName().getString(), team);
         scoreboard.addPlayerToTeam(ghostPlayer.getDisplayName().getString(), team);
 
+        serverPlayer.connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
+
+        MovementData firstPos = recordingData.getMovementData().get(0);
+
         // Enable all skin layers
         SynchedEntityData dataWatcherGhost = ghostPlayer.getEntityData();
         EntityDataAccessor<Byte> ENTITY_LAYER = new EntityDataAccessor<>(17, EntityDataSerializers.BYTE);
         dataWatcherGhost.set(ENTITY_LAYER, (byte) 0b01111111);
 
-        connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, ghostPlayer));
-        //TpPacket.send(serverPlayer, ghostPlayer, firstLoc.getX(), firstLoc.getY(), firstLoc.getZ(), firstLoc.getxRot(), firstLoc.getyRot());
-        //connection.send(new ClientboundAddPlayerPacket(ghostPlayer));
-        //connection.send(new ClientboundSetEntityDataPacket(ghostPlayer.getId(), dataWatcherGhost, true));
-        connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
+        ghostPlayer.moveTo(firstPos.getX(), firstPos.getY(), firstPos.getZ(), firstPos.getxRot(), firstPos.getyRot());
+    }
 
-        ghostPlayer.setPos(serverPlayer.position());
+    @Override
+    public void runPlayback() {
+
+        serverPlayer.connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, ghostPlayer));
         serverPlayer.getLevel().addFreshEntity(ghostPlayer);
 
         if(ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.particles-apparition")) {
             serverPlayer.connection.send(new ClientboundLevelParticlesPacket(
                     ParticleTypes.CLOUD,
                     true,
-                    serverPlayer.getX(),
-                    serverPlayer.getY(),
-                    serverPlayer.getZ(),
+                    ghostPlayer.getX(),
+                    ghostPlayer.getY(),
+                    ghostPlayer.getZ(),
                     0.5F,
                     1.3F,
                     0.5F,
@@ -137,12 +129,6 @@ public class Playback implements PlaybackInterface {
                     50
             ));
         }
-    }
-
-    @Override
-    public void runPlayback() {
-
-        createGhostPlayer();
 
         tick = 0;
 
@@ -167,9 +153,9 @@ public class Playback implements PlaybackInterface {
                     if(actionPlayer != null) {
                         switch (actionPlayer.getActionType()) {
                             case SWING:
-                                serverPlayer.connection.send(new ClientboundAnimatePacket(ghostPlayer, 0));
+                                ghostPlayer.swing(InteractionHand.MAIN_HAND);
                                 break;
-//                            case POSE:
+                            case POSE:
 //                                Pose pose = ((PlayerPoseChange) actionPlayer).getPose();
 //                                ghostPlayer.setPose(pose);
 //                                break;
@@ -182,7 +168,6 @@ public class Playback implements PlaybackInterface {
     }
 
     private void startCountdown() {
-        onCountdown = true;
         PlaybackCountdown playbackCountdown = new PlaybackCountdown(player, this);
 
         Course course = Parkour.getInstance().getCourseManager().findByName(courseName);
@@ -190,10 +175,8 @@ public class Playback implements PlaybackInterface {
             @Override
             public void run() {
                 playbackCountdown.update();
-                if (playbackCountdown.getSeconds() == 0) {
-                    playbackCountdown.getPlayback().runPlayback();
-                }
                 if (playbackCountdown.getSeconds() < 0) {
+                    playbackCountdown.getPlayback().runPlayback();
                     ParkourGhostManager.getCurrentPlayerRecording(player).start();
                     this.cancel();
                 }

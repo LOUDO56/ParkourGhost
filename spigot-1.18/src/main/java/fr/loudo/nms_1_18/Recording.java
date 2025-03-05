@@ -13,6 +13,7 @@ import io.github.a5h73y.parkour.type.player.session.ParkourSession;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Pose;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -29,6 +30,7 @@ public class Recording implements RecordingInterface {
     private boolean isRecording;
     private int tick;
     private BukkitTask recordTask;
+    private Location oldPos;
 
     public Recording(Player player, String courseName) {
         this.courseName = courseName;

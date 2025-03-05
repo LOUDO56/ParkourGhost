@@ -20,18 +20,16 @@ public class MovementData {
 
     public static MovementData getMovementDataFromPlayer(Player player) {
         Location pPosition = player.getLocation();
-        float xRot = pPosition.getPitch();
-        float yRot = pPosition.getYaw();
-
         return new MovementData(
                 pPosition.getX(),
                 pPosition.getY(),
                 pPosition.getZ(),
-                xRot,
-                yRot,
-                (byte) (yRot * 256.0F / 360.0F)
+                pPosition.getPitch(),
+                pPosition.getYaw(),
+                (byte) (pPosition.getYaw() * 256.0F / 360.0F)
         );
     }
+
 
 
     public double getX() {

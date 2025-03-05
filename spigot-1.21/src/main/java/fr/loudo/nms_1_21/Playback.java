@@ -44,7 +44,6 @@ public class Playback implements PlaybackInterface {
     private String courseName;
     private boolean isPlayingBack;
     private int tick;
-    private boolean onCountdown;
     private BukkitTask countdownTask;
     private BukkitTask blockPlayerTask;
     private BukkitTask ghostPlayerTask;
@@ -62,6 +61,8 @@ public class Playback implements PlaybackInterface {
     public boolean start() {
         if(isPlayingBack) return false;
         isPlayingBack = true;
+
+        createGhostPlayer();
 
         if(ParkourGhost.getPlugin().getConfig().getBoolean("playback.countdown")) {
             startCountdown();
@@ -107,14 +108,20 @@ public class Playback implements PlaybackInterface {
         EntityDataAccessor<Byte> ENTITY_LAYER = new EntityDataAccessor<>(17, EntityDataSerializers.BYTE);
         dataWatcherGhost.set(ENTITY_LAYER, (byte) 0b01111111);
 
-        MovementData firstLoc = recordingData.getMovementData().get(0);
-        ghostPlayer.moveTo(firstLoc.getX(), firstLoc.getY(), firstLoc.getZ());
-
-        connection.send(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ghostPlayer));
         connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
 
+        MovementData firstLoc = recordingData.getMovementData().get(0);
+        ghostPlayer.moveTo(firstLoc.getX(), firstLoc.getY(), firstLoc.getZ(), firstLoc.getxRot(), firstLoc.getyRot());
+    }
 
+    @Override
+    public void runPlayback() {
+
+        tick = 0;
+
+        serverPlayer.connection.send(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ghostPlayer));
         serverPlayer.serverLevel().addFreshEntity(ghostPlayer);
+
         if(ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.particles-apparition")) {
             serverPlayer.connection.send(new ClientboundLevelParticlesPacket(
                     ParticleTypes.CLOUD,
@@ -130,14 +137,6 @@ public class Playback implements PlaybackInterface {
                     50
             ));
         }
-    }
-
-    @Override
-    public void runPlayback() {
-
-        createGhostPlayer();
-        onCountdown = false;
-        tick = 0;
 
         ghostPlayerTask = new BukkitRunnable() {
 
@@ -181,7 +180,6 @@ public class Playback implements PlaybackInterface {
     }
 
     private void startCountdown() {
-        onCountdown = true;
         PlaybackCountdown playbackCountdown = new PlaybackCountdown(player, this);
 
         Course course = Parkour.getInstance().getCourseManager().findByName(courseName);

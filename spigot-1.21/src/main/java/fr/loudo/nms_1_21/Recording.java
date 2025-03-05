@@ -7,12 +7,13 @@ import fr.loudo.parkourGhost.recordings.RecordingData;
 import fr.loudo.parkourGhost.recordings.actions.ActionPlayer;
 import fr.loudo.parkourGhost.recordings.actions.ActionType;
 import fr.loudo.parkourGhost.recordings.actions.MovementData;
+import fr.loudo.parkourGhost.recordings.actions.PlayerPoseChange;
 import io.github.a5h73y.parkour.Parkour;
 import io.github.a5h73y.parkour.type.player.session.ParkourSession;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Pose;
-import fr.loudo.parkourGhost.recordings.actions.PlayerPoseChange;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -29,6 +30,7 @@ public class Recording implements RecordingInterface {
     private boolean isRecording;
     private int tick;
     private BukkitTask recordTask;
+    private Location oldPos;
 
     public Recording(Player player, String courseName) {
         this.courseName = courseName;
