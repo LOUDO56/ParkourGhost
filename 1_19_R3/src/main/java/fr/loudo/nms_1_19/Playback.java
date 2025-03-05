@@ -31,8 +31,10 @@ import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -114,6 +116,8 @@ public class Playback implements PlaybackInterface {
         dataWatcherGhost.set(ENTITY_LAYER, (byte) 0b01111111);
 
         ghostPlayer.moveTo(firstPos.getX(), firstPos.getY(), firstPos.getZ(), firstPos.getxRot(), firstPos.getyRot());
+        NamespacedKey isGhostParkourKey = new NamespacedKey(ParkourGhost.getPlugin(), "isParkourGhost");
+        ghostPlayer.getBukkitEntity().getPlayer().getPersistentDataContainer().set(isGhostParkourKey, PersistentDataType.INTEGER, 1);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package fr.loudo.parkourGhost.events;
 
+import fr.loudo.parkourGhost.ParkourGhost;
 import fr.loudo.parkourGhost.manager.ParkourGhostManager;
 import fr.loudo.parkourGhost.recordings.Recording;
 import fr.loudo.parkourGhost.recordings.actions.ActionType;
@@ -8,6 +9,7 @@ import io.github.a5h73y.parkour.event.ParkourFinishEvent;
 import io.github.a5h73y.parkour.event.ParkourJoinEvent;
 import io.github.a5h73y.parkour.event.ParkourLeaveEvent;
 import io.github.a5h73y.parkour.event.ParkourRestartEvent;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,6 +17,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
 public class ParkourEvents implements Listener {
 
@@ -61,6 +65,17 @@ public class ParkourEvents implements Listener {
             Recording recording = ParkourGhostManager.getCurrentPlayerRecording(p);
             if(recording != null) {
                 recording.addAction(ActionType.HURT);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerStepPressurePlate(PlayerInteractEvent event) {
+        if (event.getAction() == Action.PHYSICAL) {
+            PersistentDataContainer data = event.getPlayer().getPersistentDataContainer();
+            NamespacedKey isGhostParkourKey = new NamespacedKey(ParkourGhost.getPlugin(), "isParkourGhost");
+            if(data.has(isGhostParkourKey, PersistentDataType.INTEGER)) {
+                event.setCancelled(true);
             }
         }
     }

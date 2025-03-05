@@ -32,8 +32,10 @@ import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import fr.loudo.nms_1_21.utils.GhostPlayer;
@@ -92,7 +94,6 @@ public class Playback implements PlaybackInterface {
         ghostPlayer = new GhostPlayer(serverPlayer.serverLevel(), ghostGameProfile);
         ServerGamePacketListenerImpl connection = serverPlayer.connection;
 
-
         boolean seeUsername = ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.see-username");
         boolean ghostPlayerInvisible = ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.invisible");
 
@@ -118,6 +119,8 @@ public class Playback implements PlaybackInterface {
 
         MovementData firstLoc = recordingData.getMovementData().get(0);
         ghostPlayer.moveTo(firstLoc.getX(), firstLoc.getY(), firstLoc.getZ(), firstLoc.getxRot(), firstLoc.getyRot());
+        NamespacedKey isGhostParkourKey = new NamespacedKey(ParkourGhost.getPlugin(), "isParkourGhost");
+        ghostPlayer.getBukkitEntity().getPlayer().getPersistentDataContainer().set(isGhostParkourKey, PersistentDataType.INTEGER, 1);
     }
 
     @Override
