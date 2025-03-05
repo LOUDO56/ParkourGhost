@@ -7,8 +7,9 @@
 **ParkourGhost** is an add-on for [Parkour](https://www.spigotmc.org/resources/parkour.23685/) that lets you race against a ghost of your best run, challenging yourself to beat your own record.
 It's inspired by Time Trials from Mario Kart.
 
-## Note
-It only works from 1.21 to 1.21.4 since I used NMS from this version specifically because this project was mainly a way for me to learn NMS development. I may consider using Protocollib to make it cross-version in the future.
+## Supported Version
+1.18.2, 1.19.4, 1.20.6 and 1.21.4 are supported. I will **NOT** support minecraft versions under 1.18.\
+If you want a specific version to be supported above 1.18 (e.g 1.20.4) create an [issue](https://github.com/LOUDO56/ParkourGhost/issues)
 
 ## Features
 - Client-side npc (only you can see your ghost)
