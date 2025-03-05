@@ -17,6 +17,7 @@
         <module>dist</module>
         <module>spigot-1.18</module>
         <module>spigot-1.19</module>
+        <module>spigot-1.20</module>
     </modules>
 
 
