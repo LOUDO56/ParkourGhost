@@ -6,3 +6,5 @@ ghostplayer:
 playback:
   countdown: true
   start-second: 3
+
+check-version: true
