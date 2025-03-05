@@ -1,0 +1,14 @@
+name: ParkourGhost
+description: Challenge your ghost best time to a parkour. Inspired by Mario Kart time trials. Add-on from existing plugin "Parkour"
+version: '1.1.0'
+main: fr.loudo.parkourGhost.ParkourGhost
+api-version: '1.18'
+authors: [ LOUDO ]
+website: https://lucasll.xyz
+depend:
+  - Parkour
+commands:
+  parkourghost:
+    aliases: paghost
+    usage: "/parkourghost <help|reload|play>"
+    description: Join a parkour and challenge your ghost best time.
