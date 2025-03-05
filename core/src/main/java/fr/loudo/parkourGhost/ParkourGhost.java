@@ -2,14 +2,18 @@ package fr.loudo.parkourGhost;
 
 import fr.loudo.parkourGhost.commands.ParkourGhostCommand;
 import fr.loudo.parkourGhost.commands.ParkourGhostTabCompleter;
+import fr.loudo.parkourGhost.events.JoinEvent;
 import fr.loudo.parkourGhost.events.ParkourEvents;
 import fr.loudo.parkourGhost.manager.PlayersDataManager;
+import fr.loudo.parkourGhost.utils.CheckVersion;
 import org.bukkit.Bukkit;
 import org.bukkit.UnsafeValues;
 import org.bukkit.craftbukkit.v1_18_R2.util.CraftMagicNumbers;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.json.simple.parser.ParseException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,6 +39,7 @@ public final class ParkourGhost extends JavaPlugin {
         getCommand("parkourghost").setTabCompleter(new ParkourGhostTabCompleter());
 
         getServer().getPluginManager().registerEvents(new ParkourEvents(), this);
+        getServer().getPluginManager().registerEvents(new JoinEvent(), this);
 
         PlayersDataManager.folderInit();
         saveDefaultConfig();
@@ -54,6 +59,14 @@ public final class ParkourGhost extends JavaPlugin {
         version = versionDot.replace(".", "_");
         if(version.split("_").length > 2) {
             version = version.split("_")[0] + "_" + version.split("_")[1];
+        }
+
+        if(getConfig().getBoolean("check-version")) {
+            try {
+                CheckVersion.verify();
+            } catch (IOException | ParseException e) {
+                getLogger().info("Couldn't check for a new update, passing.");
+            }
         }
 
 
