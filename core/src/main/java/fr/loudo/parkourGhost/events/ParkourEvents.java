@@ -8,9 +8,11 @@ import io.github.a5h73y.parkour.event.ParkourFinishEvent;
 import io.github.a5h73y.parkour.event.ParkourJoinEvent;
 import io.github.a5h73y.parkour.event.ParkourLeaveEvent;
 import io.github.a5h73y.parkour.event.ParkourRestartEvent;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -45,11 +47,20 @@ public class ParkourEvents implements Listener {
     @EventHandler
     public void onPlayerSwing(PlayerInteractEvent event) {
         if(event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
-            if(Parkour.getInstance().getParkourSessionManager().isPlaying(event.getPlayer())) {
-                Recording recording = ParkourGhostManager.getCurrentPlayerRecording(event.getPlayer());
-                if(recording != null) {
-                    recording.addAction(ActionType.SWING);
-                }
+            Recording recording = ParkourGhostManager.getCurrentPlayerRecording(event.getPlayer());
+            if(recording != null) {
+                recording.addAction(ActionType.SWING);
+            }
+
+        }
+    }
+
+    @EventHandler
+    public void onPlayerHurt(EntityDamageEvent event) {
+        if(event.getEntity() instanceof Player p) {
+            Recording recording = ParkourGhostManager.getCurrentPlayerRecording(p);
+            if(recording != null) {
+                recording.addAction(ActionType.HURT);
             }
         }
     }

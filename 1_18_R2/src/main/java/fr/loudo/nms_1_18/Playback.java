@@ -20,6 +20,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.scores.PlayerTeam;
@@ -162,6 +163,9 @@ public class Playback implements PlaybackInterface {
                                 break;
                             case POSE:
                                 ghostPlayer.setPose(Pose.valueOf(ParsePose.parse(actionPlayer)));
+                                break;
+                            case HURT:
+                                serverPlayer.connection.send(new ClientboundAnimatePacket(ghostPlayer, 1));
                                 break;
                         }
                     }

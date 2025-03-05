@@ -1,6 +1,7 @@
 package fr.loudo.parkourGhost.recordings;
 
 import fr.loudo.parkourGhost.ParkourGhost;
+import fr.loudo.parkourGhost.manager.ParkourGhostManager;
 import fr.loudo.parkourGhost.manager.PlayersDataManager;
 import fr.loudo.parkourGhost.recordings.actions.ActionPlayer;
 import fr.loudo.parkourGhost.recordings.actions.ActionType;
@@ -74,8 +75,8 @@ public class Recording {
         if(!force) {
             try {
                 ParkourSession pSession = Parkour.getInstance().getParkourSessionManager().getParkourSession(player);
+                save();
                 if(Parkour.getInstance().getDatabaseManager().isBestCourseTime(pSession.getCourseName(), pSession.getTimeFinished())) {
-                    save();
                     player.sendMessage(ChatColor.GREEN + "New Personal Best. Challenge your ghost with /paghost play " + pSession.getCourseName());
                 }
             } catch (Exception e) {

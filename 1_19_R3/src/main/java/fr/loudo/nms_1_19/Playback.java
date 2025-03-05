@@ -13,6 +13,7 @@ import fr.loudo.parkourGhost.recordings.actions.MovementData;
 import fr.loudo.parkourGhost.utils.ParsePose;
 import io.github.a5h73y.parkour.Parkour;
 import io.github.a5h73y.parkour.type.course.Course;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -20,6 +21,10 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.scores.PlayerTeam;
@@ -161,6 +166,9 @@ public class Playback implements PlaybackInterface {
                                 break;
                             case POSE:
                                 ghostPlayer.setPose(Pose.valueOf(ParsePose.parse(actionPlayer)));
+                                break;
+                            case HURT:
+                                serverPlayer.connection.send(new ClientboundAnimatePacket(ghostPlayer, 1));
                                 break;
                         }
                     }
