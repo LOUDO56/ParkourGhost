@@ -42,7 +42,7 @@ public class PlayersDataManager {
 
         recordedRuns.put(courseName, recordingData);
 
-        try(Writer writer = new FileWriter(playerDataFile)) {
+        try(Writer writer = new BufferedWriter(new FileWriter(playerDataFile))) {
             gson.toJson(playerData, writer);
         }
 
@@ -58,7 +58,7 @@ public class PlayersDataManager {
                 .registerTypeAdapter(ActionPlayer.class, new ActionPlayerDeserliazer())
                 .create();
         PlayerData playerData;
-        try (Reader reader = new FileReader(playerDataFile)) {
+        try (Reader reader = new BufferedReader(new FileReader(playerDataFile))) {
             playerData = gson.fromJson(reader, PlayerData.class);
         }
 

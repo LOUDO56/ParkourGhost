@@ -3,7 +3,6 @@ package fr.loudo.nms_1_19;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import fr.loudo.nms_1_19.utils.GhostPlayer;
-import fr.loudo.nms_1_19.utils.TpPacket;
 import fr.loudo.parkourGhost.ParkourGhost;
 import fr.loudo.parkourGhost.manager.ParkourGhostManager;
 import fr.loudo.parkourGhost.nms.PlaybackInterface;
@@ -148,8 +147,10 @@ public class Playback implements PlaybackInterface {
 
                 MovementData pos = recordingData.getMovementData().get(tick);
 
-                TpPacket.send(serverPlayer, ghostPlayer, pos.getX(), pos.getY(), pos.getZ(), pos.getxRot(), pos.getyRot());
-                serverPlayer.connection.send(new ClientboundRotateHeadPacket(ghostPlayer, pos.getHeadYRot()));
+                ghostPlayer.setPos(pos.getX(), pos.getY(), pos.getZ());
+                ghostPlayer.setXRot(pos.getxRot());
+                ghostPlayer.setYRot(pos.getyRot());
+                ghostPlayer.setYHeadRot(pos.getHeadYRot());
 
                 if(!recordingData.getActionsPlayer().isEmpty()) {
                     ActionPlayer actionPlayer = recordingData.getActionsPlayer().get(tick);

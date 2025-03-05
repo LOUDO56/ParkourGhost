@@ -153,14 +153,10 @@ public class Playback implements PlaybackInterface {
 
                 MovementData pos = recordingData.getMovementData().get(tick);
 
-                PositionMoveRotation positionMoveRotation = new PositionMoveRotation(
-                        new Vec3(pos.getX(), pos.getY(), pos.getZ()),
-                        new Vec3(0, 0, 0),
-                        pos.getyRot(),
-                        pos.getxRot()
-                );
-                serverPlayer.connection.send(new ClientboundEntityPositionSyncPacket(ghostPlayer.getId(), positionMoveRotation, false));
-                serverPlayer.connection.send(new ClientboundRotateHeadPacket(ghostPlayer, pos.getHeadYRot()));
+                ghostPlayer.setPos(pos.getX(), pos.getY(), pos.getZ());
+                ghostPlayer.setXRot(pos.getxRot());
+                ghostPlayer.setYRot(pos.getyRot());
+                ghostPlayer.setYHeadRot(pos.getHeadYRot());
 
                 if(!recordingData.getActionsPlayer().isEmpty()) {
                     ActionPlayer actionPlayer = recordingData.getActionsPlayer().get(tick);

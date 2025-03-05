@@ -6,6 +6,7 @@ import fr.loudo.parkourGhost.events.JoinEvent;
 import fr.loudo.parkourGhost.events.ParkourEvents;
 import fr.loudo.parkourGhost.manager.PlayersDataManager;
 import fr.loudo.parkourGhost.utils.CheckVersion;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.UnsafeValues;
 import org.bukkit.craftbukkit.v1_18_R2.util.CraftMagicNumbers;
@@ -68,6 +69,10 @@ public final class ParkourGhost extends JavaPlugin {
                 getLogger().info("Couldn't check for a new update, passing.");
             }
         }
+
+        //Bstats
+        int pluginId = 24993; // <-- Replace with the id of your plugin!
+        Metrics metrics = new Metrics(this, pluginId);
 
 
     }

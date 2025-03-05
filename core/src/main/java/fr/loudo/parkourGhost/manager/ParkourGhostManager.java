@@ -18,7 +18,10 @@ public class ParkourGhostManager {
 
     public static boolean joinPlayerParkour(Player player, String courseName) {
 
-        if(SERVER_PLAYER_RECORDING_HASH_MAP.containsKey(player)) return false;
+        if(SERVER_PLAYER_RECORDING_HASH_MAP.containsKey(player)) {
+            restartPlayerParkour(player, courseName);
+            return false;
+        };
 
         Recording recording = new Recording(player, courseName);
         SERVER_PLAYER_RECORDING_HASH_MAP.put(player, recording);
