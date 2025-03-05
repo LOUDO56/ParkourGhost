@@ -44,9 +44,6 @@ public class CheckVersion {
         JSONObject dataObj = (JSONObject) parse.parse(inline.toString());
         latestVersion = ((String) dataObj.get("tag_name")).replace("v", "");
 
-        System.out.println(latestVersion);
-        System.out.println(ParkourGhost.getPlugin().getDescription().getVersion());
-
         if(!ParkourGhost.getPlugin().getDescription().getVersion().equals(latestVersion)) {
             newVersionAvailable = true;
             notifyConsole();
