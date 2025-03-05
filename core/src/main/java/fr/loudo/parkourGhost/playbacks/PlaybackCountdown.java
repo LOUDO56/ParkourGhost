@@ -42,7 +42,7 @@ public class PlaybackCountdown {
         }
         if(seconds == 0) {
             player.playSound(player, COUNTDOWN_SOUND, 1.0f, 1.0f);
-            player.sendTitle(" ", ChatColor.GREEN +"GO!", 0, 50, 3);
+            player.sendTitle(" ", ChatColor.GREEN +"GO!", 0, 50, 2);
         } else {
             player.playSound(player, COUNTDOWN_SOUND, 1.0f, currentPitch);
             player.sendTitle(" ", currentColor + String.valueOf(seconds), 0, 100, 0);

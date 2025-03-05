@@ -99,6 +99,7 @@ public class Playback implements PlaybackInterface {
         scoreboard.addPlayerToTeam(ghostPlayer.getDisplayName().getString(), team);
 
         serverPlayer.connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
+        serverPlayer.connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
 
         MovementData firstPos = recordingData.getMovementData().get(0);
 
@@ -113,6 +114,7 @@ public class Playback implements PlaybackInterface {
     @Override
     public void runPlayback() {
 
+        //TODO: remove player from tablist
         serverPlayer.connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, ghostPlayer));
         serverPlayer.getLevel().addFreshEntity(ghostPlayer);
 
