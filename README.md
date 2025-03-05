@@ -8,7 +8,7 @@
 It's inspired by Time Trials from Mario Kart.
 
 ## Supported Version
-1.18.2, 1.19.4, 1.20.6 and 1.21.4 are supported. I will **NOT** support minecraft versions under 1.18.\
+1.18.2, 1.19.4, 1.20.6 and 1.21.4 are supported. I will **NOT** support minecraft versions below 1.18.\
 If you want a specific version to be supported above 1.18 (e.g 1.20.4) create an [issue](https://github.com/LOUDO56/ParkourGhost/issues)
 
 ## Features
