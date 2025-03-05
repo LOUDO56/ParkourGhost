@@ -11,6 +11,7 @@ import fr.loudo.parkourGhost.playbacks.PlaybackCountdown;
 import fr.loudo.parkourGhost.recordings.RecordingData;
 import fr.loudo.parkourGhost.recordings.actions.ActionPlayer;
 import fr.loudo.parkourGhost.recordings.actions.MovementData;
+import fr.loudo.parkourGhost.utils.ParsePose;
 import io.github.a5h73y.parkour.Parkour;
 import io.github.a5h73y.parkour.type.course.Course;
 import net.minecraft.core.particles.ParticleTypes;
@@ -20,6 +21,8 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
@@ -156,9 +159,8 @@ public class Playback implements PlaybackInterface {
                                 ghostPlayer.swing(InteractionHand.MAIN_HAND);
                                 break;
                             case POSE:
-//                                Pose pose = ((PlayerPoseChange) actionPlayer).getPose();
-//                                ghostPlayer.setPose(pose);
-//                                break;
+                                ghostPlayer.setPose(Pose.valueOf(ParsePose.parse(actionPlayer)));
+                                break;
                         }
                     }
                 }
@@ -214,6 +216,7 @@ public class Playback implements PlaybackInterface {
         }
 
         if(ghostPlayer != null) {
+            ghostPlayer.remove(Entity.RemovalReason.KILLED);
             serverPlayer.connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER, ghostPlayer));
             serverPlayer.connection.send(new ClientboundRemoveEntitiesPacket(ghostPlayer.getId()));
         }
