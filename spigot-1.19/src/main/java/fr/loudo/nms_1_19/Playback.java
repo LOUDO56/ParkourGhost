@@ -1,9 +1,9 @@
-package fr.loudo.nms_1_18;
+package fr.loudo.nms_1_19;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import fr.loudo.nms_1_18.utils.GhostPlayer;
-import fr.loudo.nms_1_18.utils.TpPacket;
+import fr.loudo.nms_1_19.utils.GhostPlayer;
+import fr.loudo.nms_1_19.utils.TpPacket;
 import fr.loudo.parkourGhost.ParkourGhost;
 import fr.loudo.parkourGhost.manager.ParkourGhostManager;
 import fr.loudo.parkourGhost.nms.PlaybackInterface;
@@ -27,11 +27,12 @@ import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
 import org.bukkit.ChatColor;
-import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.Collections;
 import java.util.UUID;
 
 public class Playback implements PlaybackInterface {
@@ -114,7 +115,7 @@ public class Playback implements PlaybackInterface {
     @Override
     public void runPlayback() {
 
-        serverPlayer.connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, ghostPlayer));
+        serverPlayer.connection.send(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ghostPlayer));
         serverPlayer.getLevel().addFreshEntity(ghostPlayer);
 
         if(ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.particles-apparition")) {
@@ -216,7 +217,7 @@ public class Playback implements PlaybackInterface {
 
         if(ghostPlayer != null) {
             ghostPlayer.remove(Entity.RemovalReason.KILLED);
-            serverPlayer.connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER, ghostPlayer));
+            serverPlayer.connection.send(new ClientboundPlayerInfoRemovePacket(Collections.singletonList(ghostPlayer.getUUID())));
             serverPlayer.connection.send(new ClientboundRemoveEntitiesPacket(ghostPlayer.getId()));
         }
 

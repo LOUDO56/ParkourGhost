@@ -10,27 +10,6 @@ import java.lang.reflect.InvocationTargetException;
 
 public class NMSHandler {
 
-    public static RecordingInterface getRecordingInstance(Player player, String courseName) {
-
-        String version = ParkourGhost.getVersion();
-        String clazzName = "fr.loudo.nms_" + version + ".Recording";
-        try {
-            Class<? extends RecordingInterface> clazz = (Class<? extends RecordingInterface>) Class.forName(clazzName);
-            Constructor<?> constructor = clazz.getDeclaredConstructor(Player.class, String.class);
-            return (RecordingInterface) constructor.newInstance(player, courseName);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("This version is not supported: " + e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException("This version is not supported: " + e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException("This version is not supported: " + e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("This version is not supported: " + e);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("This version is not supported: " + e);
-        }
-    }
-
     public static PlaybackInterface getPlaybackInstance(Player player, RecordingData recordingData, String courseName) {
 
         String version = ParkourGhost.getVersion();

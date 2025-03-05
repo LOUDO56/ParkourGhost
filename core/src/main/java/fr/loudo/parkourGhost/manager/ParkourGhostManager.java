@@ -3,7 +3,7 @@ package fr.loudo.parkourGhost.manager;
 import fr.loudo.parkourGhost.data.player.PlayerData;
 import fr.loudo.parkourGhost.nms.NMSHandler;
 import fr.loudo.parkourGhost.nms.PlaybackInterface;
-import fr.loudo.parkourGhost.nms.RecordingInterface;
+import fr.loudo.parkourGhost.recordings.Recording;
 import fr.loudo.parkourGhost.recordings.RecordingData;
 import io.github.a5h73y.parkour.Parkour;
 import org.bukkit.entity.Player;
@@ -13,14 +13,14 @@ import java.util.HashMap;
 
 public class ParkourGhostManager {
 
-    private static final HashMap<Player, RecordingInterface> SERVER_PLAYER_RECORDING_HASH_MAP = new HashMap<>();
+    private static final HashMap<Player, Recording> SERVER_PLAYER_RECORDING_HASH_MAP = new HashMap<>();
     private static final HashMap<Player, PlaybackInterface> SERVER_PLAYER_PLAYBACK_HASH_MAP = new HashMap<>();
 
     public static boolean joinPlayerParkour(Player player, String courseName) {
 
         if(SERVER_PLAYER_RECORDING_HASH_MAP.containsKey(player)) return false;
 
-        RecordingInterface recording = NMSHandler.getRecordingInstance(player, courseName);
+        Recording recording = new Recording(player, courseName);
         SERVER_PLAYER_RECORDING_HASH_MAP.put(player, recording);
 
         // If the player is playing a playback, we will start the recording after the countdown.
@@ -91,14 +91,14 @@ public class ParkourGhostManager {
             playback.stop();
             SERVER_PLAYER_PLAYBACK_HASH_MAP.remove(player, playback);
         }
-        RecordingInterface recording = SERVER_PLAYER_RECORDING_HASH_MAP.get(player);
+        Recording recording = SERVER_PLAYER_RECORDING_HASH_MAP.get(player);
         if(recording != null) {
             recording.stop(force);
             SERVER_PLAYER_RECORDING_HASH_MAP.remove(player, recording);
         }
     }
 
-    public static RecordingInterface getCurrentPlayerRecording(Player player) {
+    public static Recording getCurrentPlayerRecording(Player player) {
         return SERVER_PLAYER_RECORDING_HASH_MAP.get(player);
     }
 
