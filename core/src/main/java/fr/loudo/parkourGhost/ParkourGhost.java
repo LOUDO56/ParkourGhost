@@ -10,6 +10,11 @@ import org.bukkit.craftbukkit.v1_18_R2.util.CraftMagicNumbers;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public final class ParkourGhost extends JavaPlugin {
 
     private static ParkourGhost plugin;
@@ -35,7 +40,18 @@ public final class ParkourGhost extends JavaPlugin {
         saveDefaultConfig();
 
         version = Bukkit.getBukkitVersion();
-        version = version.split("-")[0].replace(".", "_");
+        String versionDot = version.split("-")[0];
+
+        List<String> versionsSupported = new ArrayList<>(Arrays.asList("1.18.2", "1.19.4", "1.20.6", "1.21.4"));
+
+        if(!versionsSupported.contains(versionDot)) {
+            Bukkit.getLogger().severe(
+                    "[ParkourGhost] Your minecraft version isn't supported. ParkourGhost is disabled."
+                    + " If you think this is an error, check that your server is at the latest version, e.g. 1.18 -> 1.18.2"
+            );
+            this.setEnabled(false);
+        }
+        version = versionDot.replace(".", "_");
         if(version.split("_").length > 2) {
             version = version.split("_")[0] + "_" + version.split("_")[1];
         }
