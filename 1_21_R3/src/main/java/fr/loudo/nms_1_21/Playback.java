@@ -163,7 +163,7 @@ public class Playback implements PlaybackInterface {
                 ghostPlayer.setPos(pos.getX(), pos.getY(), pos.getZ());
                 ghostPlayer.setXRot(pos.getxRot());
                 ghostPlayer.setYRot(pos.getyRot());
-                ghostPlayer.setYHeadRot(pos.getHeadYRot());
+                ghostPlayer.setYHeadRot(pos.getyRot());
 
                 if(!recordingData.getActionsPlayer().isEmpty()) {
                     ActionPlayer actionPlayer = recordingData.getActionsPlayer().get(tick);
