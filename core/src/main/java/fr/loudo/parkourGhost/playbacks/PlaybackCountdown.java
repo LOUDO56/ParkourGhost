@@ -2,6 +2,8 @@ package fr.loudo.parkourGhost.playbacks;
 
 import fr.loudo.parkourGhost.ParkourGhost;
 import fr.loudo.parkourGhost.nms.PlaybackInterface;
+import io.github.a5h73y.parkour.Parkour;
+import io.github.a5h73y.parkour.type.player.session.ParkourSession;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -42,7 +44,9 @@ public class PlaybackCountdown {
         }
         if(seconds == 0) {
             player.playSound(player, COUNTDOWN_SOUND, 1.0f, 1.0f);
-            player.sendTitle(" ", ChatColor.GREEN +"GO!", 0, 50, 2);
+            player.sendTitle(" ", ChatColor.GREEN +"GO!", 0, 15, 20);
+            ParkourSession session = Parkour.getInstance().getParkourSessionManager().getParkourSession(player);
+            session.resetTime();
         } else {
             player.playSound(player, COUNTDOWN_SOUND, 1.0f, currentPitch);
             player.sendTitle(" ", currentColor + String.valueOf(seconds), 0, 100, 0);
