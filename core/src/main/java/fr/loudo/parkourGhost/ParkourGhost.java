@@ -48,18 +48,32 @@ public final class ParkourGhost extends JavaPlugin {
         version = Bukkit.getBukkitVersion();
         String versionDot = version.split("-")[0];
 
-        List<String> versionsSupported = new ArrayList<>(Arrays.asList("1.18.2", "1.19.4", "1.20.6", "1.21.4"));
+        List<String> versionsSupported = new ArrayList<>(Arrays.asList("1.18.2", "1.19.4", "1.20.4", "1.20.6", "1.21.4"));
 
         if(!versionsSupported.contains(versionDot)) {
             Bukkit.getLogger().severe(
                     "[ParkourGhost] Your minecraft version isn't supported. ParkourGhost is disabled."
-                    + " If you think this is an error, check that your server is at the latest version, e.g. 1.18 -> 1.18.2"
+                    + " Only " + versionsSupported + " are supported."
             );
             this.setEnabled(false);
         }
-        version = versionDot.replace(".", "_");
-        if(version.split("_").length > 2) {
-            version = version.split("_")[0] + "_" + version.split("_")[1];
+
+        switch (versionDot) {
+            case "1.18.2":
+                version = "1_18_R2";
+                break;
+            case "1.19.4":
+                version = "1_19_R3";
+                break;
+            case "1.20.4":
+                version = "1_20_R3";
+                break;
+            case "1.20.6":
+                version = "1_18_R4";
+                break;
+            case "1.21.4":
+                version = "1_21_R3";
+                break;
         }
 
         if(getConfig().getBoolean("check-version")) {

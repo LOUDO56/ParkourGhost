@@ -1,8 +1,8 @@
-package fr.loudo.nms_1_18;
+package fr.loudo.nms_1_20_R4;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import fr.loudo.nms_1_18.utils.GhostPlayer;
+import fr.loudo.nms_1_20_R4.utils.GhostPlayer;
 import fr.loudo.parkourGhost.ParkourGhost;
 import fr.loudo.parkourGhost.manager.ParkourGhostManager;
 import fr.loudo.parkourGhost.nms.PlaybackInterface;
@@ -20,7 +20,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.scores.PlayerTeam;
@@ -28,12 +27,13 @@ import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R4.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.Collections;
 import java.util.UUID;
 
 public class Playback implements PlaybackInterface {
@@ -80,10 +80,10 @@ public class Playback implements PlaybackInterface {
 
         if (playerProfile.getProperties().containsKey("textures")) {
             Property textures = playerProfile.getProperties().get("textures").iterator().next();
-            ghostGameProfile.getProperties().put("textures", new Property("textures", textures.getValue(), textures.getSignature()));
+            ghostGameProfile.getProperties().put("textures", new Property("textures", textures.value(), textures.signature()));
         }
 
-        ghostPlayer = new GhostPlayer(serverPlayer.getLevel(), ghostGameProfile);
+        ghostPlayer = new GhostPlayer(serverPlayer.serverLevel(), ghostGameProfile);
 
         boolean seeUsername = ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.see-username");
         boolean ghostPlayerInvisible = ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.invisible");
@@ -102,7 +102,6 @@ public class Playback implements PlaybackInterface {
         scoreboard.addPlayerToTeam(ghostPlayer.getDisplayName().getString(), team);
 
         serverPlayer.connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
-        serverPlayer.connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
 
         MovementData firstPos = recordingData.getMovementData().get(0);
 
@@ -119,9 +118,8 @@ public class Playback implements PlaybackInterface {
     @Override
     public void runPlayback() {
 
-        //TODO: remove player from tablist
-        serverPlayer.connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, ghostPlayer));
-        serverPlayer.getLevel().addFreshEntity(ghostPlayer);
+        serverPlayer.connection.send(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ghostPlayer));
+        serverPlayer.serverLevel().addFreshEntity(ghostPlayer);
 
         if(ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.particles-apparition")) {
             serverPlayer.connection.send(new ClientboundLevelParticlesPacket(
@@ -227,7 +225,7 @@ public class Playback implements PlaybackInterface {
 
         if(ghostPlayer != null) {
             ghostPlayer.remove(Entity.RemovalReason.KILLED);
-            serverPlayer.connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER, ghostPlayer));
+            serverPlayer.connection.send(new ClientboundPlayerInfoRemovePacket(Collections.singletonList(ghostPlayer.getUUID())));
             serverPlayer.connection.send(new ClientboundRemoveEntitiesPacket(ghostPlayer.getId()));
         }
 
