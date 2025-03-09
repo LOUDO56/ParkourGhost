@@ -9,7 +9,8 @@ It's inspired by Time Trials from Mario Kart.
 
 ## Supported Version
 1.18.2, 1.19.4, 1.20.6 and 1.21.4 are supported. I will **NOT** support minecraft versions below 1.18.\
-If you want a specific version to be supported above 1.18 (e.g 1.20.4) create an [issue](https://github.com/LOUDO56/ParkourGhost/issues)
+You need the latest version of the minecraft server or else it will not work. e.g. 1.20 -> 1.20.6.
+
 
 ## How to challenge your ghost
 - Do a new personal best on a parkour, it will automatically save it and notify you.

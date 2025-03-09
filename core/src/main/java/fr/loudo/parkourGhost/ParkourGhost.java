@@ -48,7 +48,7 @@ public final class ParkourGhost extends JavaPlugin {
         version = Bukkit.getBukkitVersion();
         String versionDot = version.split("-")[0];
 
-        List<String> versionsSupported = new ArrayList<>(Arrays.asList("1.18.2", "1.19.4", "1.20.4", "1.20.6", "1.21.4"));
+        List<String> versionsSupported = new ArrayList<>(Arrays.asList("1.18.2", "1.19.4", "1.20.6", "1.21.4"));
 
         if(!versionsSupported.contains(versionDot)) {
             Bukkit.getLogger().severe(
@@ -64,9 +64,6 @@ public final class ParkourGhost extends JavaPlugin {
                 break;
             case "1.19.4":
                 version = "1_19_R3";
-                break;
-            case "1.20.4":
-                version = "1_20_R3";
                 break;
             case "1.20.6":
                 version = "1_18_R4";
