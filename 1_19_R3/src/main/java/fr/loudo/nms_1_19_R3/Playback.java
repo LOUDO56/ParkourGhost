@@ -62,7 +62,6 @@ public class Playback implements PlaybackInterface {
     public boolean start() {
         if(isPlayingBack) return false;
         isPlayingBack = true;
-        createGhostPlayer();
 
         if(ParkourGhost.getPlugin().getConfig().getBoolean("playback.countdown")) {
             startCountdown();
@@ -113,13 +112,15 @@ public class Playback implements PlaybackInterface {
         ghostPlayer.moveTo(firstPos.getX(), firstPos.getY(), firstPos.getZ(), firstPos.getxRot(), firstPos.getyRot());
         NamespacedKey isGhostParkourKey = new NamespacedKey(ParkourGhost.getPlugin(), "isParkourGhost");
         ghostPlayer.getBukkitEntity().getPlayer().getPersistentDataContainer().set(isGhostParkourKey, PersistentDataType.INTEGER, 1);
+        serverPlayer.connection.send(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ghostPlayer));
+        serverPlayer.getLevel().addFreshEntity(ghostPlayer);
     }
 
     @Override
     public void runPlayback() {
 
-        serverPlayer.connection.send(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ghostPlayer));
-        serverPlayer.getLevel().addFreshEntity(ghostPlayer);
+        createGhostPlayer();
+        tick = 0;
 
         if(ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.particles-apparition")) {
             serverPlayer.connection.send(new ClientboundLevelParticlesPacket(
@@ -136,7 +137,6 @@ public class Playback implements PlaybackInterface {
             ));
         }
 
-        tick = 0;
 
         ghostPlayerTask = new BukkitRunnable() {
 
