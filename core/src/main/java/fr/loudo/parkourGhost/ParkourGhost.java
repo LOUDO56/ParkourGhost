@@ -66,7 +66,7 @@ public final class ParkourGhost extends JavaPlugin {
                 version = "1_19_R3";
                 break;
             case "1.20.6":
-                version = "1_18_R4";
+                version = "1_20_R4";
                 break;
             case "1.21.4":
                 version = "1_21_R3";
