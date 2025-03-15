@@ -4,10 +4,10 @@ ghostplayer:
   particles-apparition: true
 
 playback:
-  countdown: false
+  countdown: true
   start-second: 3
 
 check-version: true
 
-# Dev section, only change if you know what you are doing!
+# A setting for a more seamless experience: see https://a5h73y.github.io/Parkour/#/guides/compatible-plugins?id=parkourghost
 join_parkour_on_playback: true

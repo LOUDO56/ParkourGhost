@@ -4,11 +4,10 @@ import fr.loudo.parkourGhost.ParkourGhost;
 import fr.loudo.parkourGhost.manager.ParkourGhostManager;
 import fr.loudo.parkourGhost.recordings.Recording;
 import fr.loudo.parkourGhost.recordings.actions.ActionType;
-import io.github.a5h73y.parkour.Parkour;
-import io.github.a5h73y.parkour.event.ParkourFinishEvent;
 import io.github.a5h73y.parkour.event.ParkourJoinEvent;
 import io.github.a5h73y.parkour.event.ParkourLeaveEvent;
 import io.github.a5h73y.parkour.event.ParkourRestartEvent;
+import io.github.a5h73y.parkour.event.ParkourTimeResultEvent;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,13 +28,13 @@ public class ParkourEvents implements Listener {
     }
 
     @EventHandler
-    public void onPlayerParkourFinish(ParkourFinishEvent event) {
-        ParkourGhostManager.stopRecordOrPlayback(event.getPlayer(), false);
+    public void onPlayerTimeResult(ParkourTimeResultEvent event) {
+        ParkourGhostManager.stopRecordOrPlayback(event.getPlayer(), event, false);
     }
 
     @EventHandler
     public void onPlayerParkourLeave(ParkourLeaveEvent event) {
-        ParkourGhostManager.stopRecordOrPlayback(event.getPlayer(), true);
+        ParkourGhostManager.stopRecordOrPlayback(event.getPlayer(), null, true);
     }
 
     @EventHandler
@@ -45,7 +44,7 @@ public class ParkourEvents implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        ParkourGhostManager.stopRecordOrPlayback(event.getPlayer(), true);
+        ParkourGhostManager.stopRecordOrPlayback(event.getPlayer(), null, true);
     }
 
     @EventHandler

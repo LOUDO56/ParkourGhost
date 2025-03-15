@@ -1,13 +1,14 @@
 package fr.loudo.parkourGhost.recordings;
 
 import fr.loudo.parkourGhost.ParkourGhost;
-import fr.loudo.parkourGhost.manager.ParkourGhostManager;
 import fr.loudo.parkourGhost.manager.PlayersDataManager;
 import fr.loudo.parkourGhost.recordings.actions.ActionPlayer;
 import fr.loudo.parkourGhost.recordings.actions.ActionType;
 import fr.loudo.parkourGhost.recordings.actions.MovementData;
 import fr.loudo.parkourGhost.recordings.actions.PlayerPoseChange;
 import io.github.a5h73y.parkour.Parkour;
+import io.github.a5h73y.parkour.event.ParkourTimeResultEvent;
+import io.github.a5h73y.parkour.type.player.TimeResult;
 import io.github.a5h73y.parkour.type.player.session.ParkourSession;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -64,7 +65,7 @@ public class Recording {
         recordingData.getActionsPlayer().put(tick, new ActionPlayer(actionType));
     }
 
-    public boolean stop(boolean force) {
+    public boolean stop(ParkourTimeResultEvent event, boolean force) {
         if(!isRecording) return false;
 
         recordTask.cancel();
@@ -74,10 +75,9 @@ public class Recording {
 
         if(!force) {
             try {
-                ParkourSession pSession = Parkour.getInstance().getParkourSessionManager().getParkourSession(player);
-                if(Parkour.getInstance().getDatabaseManager().isBestCourseTime(player, pSession.getCourseName(), pSession.getTimeFinished())) {
+                if(event.isPlayerRecord() || event.isGlobalRecord()) {
                     save();
-                    player.sendMessage(ChatColor.GREEN + "New Personal Best. Challenge your ghost with /paghost play " + pSession.getCourseName());
+                    player.sendMessage(ChatColor.GREEN + "New Personal Best. Challenge your ghost with /parkourghost play " + event.getCourseName());
                 }
             } catch (Exception e) {
                 player.sendMessage("An unexpected error occurred while saving your position data!");

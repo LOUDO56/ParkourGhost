@@ -7,6 +7,7 @@ import fr.loudo.parkourGhost.nms.PlaybackInterface;
 import fr.loudo.parkourGhost.recordings.Recording;
 import fr.loudo.parkourGhost.recordings.RecordingData;
 import io.github.a5h73y.parkour.Parkour;
+import io.github.a5h73y.parkour.event.ParkourTimeResultEvent;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
@@ -40,7 +41,7 @@ public class ParkourGhostManager {
         if(!SERVER_PLAYER_RECORDING_HASH_MAP.containsKey(player)) return false;
 
         PlaybackInterface currentPlayback = SERVER_PLAYER_PLAYBACK_HASH_MAP.get(player);
-        stopRecordOrPlayback(player, true);
+        stopRecordOrPlayback(player, null, true);
 
         if(currentPlayback != null) {
             startPlaybackOfPlayer(player, courseName);
@@ -93,7 +94,7 @@ public class ParkourGhostManager {
 
     }
 
-    public static void stopRecordOrPlayback(Player player, boolean force) {
+    public static void stopRecordOrPlayback(Player player, ParkourTimeResultEvent event, boolean force) {
         PlaybackInterface playback = SERVER_PLAYER_PLAYBACK_HASH_MAP.get(player);
         if(playback != null) {
             playback.stop();
@@ -101,7 +102,7 @@ public class ParkourGhostManager {
         }
         Recording recording = SERVER_PLAYER_RECORDING_HASH_MAP.get(player);
         if(recording != null) {
-            recording.stop(force);
+            recording.stop(event, force);
             SERVER_PLAYER_RECORDING_HASH_MAP.remove(player, recording);
         }
     }

@@ -37,6 +37,7 @@ public class PlayersDataManager {
             playerData = new PlayerData(player.getDisplayName());
         }
 
+        recordingData.getMovementData().remove(0);
         HashMap<String, RecordingData> recordedRuns = playerData.getRecordedRuns();
         recordedRuns.remove(courseName);
 

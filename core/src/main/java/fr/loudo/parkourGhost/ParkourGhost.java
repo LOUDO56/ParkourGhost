@@ -8,8 +8,6 @@ import fr.loudo.parkourGhost.manager.PlayersDataManager;
 import fr.loudo.parkourGhost.utils.CheckVersion;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
-import org.bukkit.UnsafeValues;
-import org.bukkit.craftbukkit.v1_18_R2.util.CraftMagicNumbers;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.parser.ParseException;
@@ -17,7 +15,6 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public final class ParkourGhost extends JavaPlugin {

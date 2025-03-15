@@ -65,10 +65,10 @@
         <dependency>
             <groupId>com.github.A5H73Y</groupId>
             <artifactId>Parkour</artifactId>
-            <version>7.2.3</version>
+            <version>7.2.4</version>
             <type>jar</type>
             <scope>system</scope>
-            <systemPath>${project.basedir}/../libs/Parkour-7.2.3-RELEASE.jar</systemPath>
+            <systemPath>${project.basedir}/../libs/Parkour-7.2.4-RELEASE.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
