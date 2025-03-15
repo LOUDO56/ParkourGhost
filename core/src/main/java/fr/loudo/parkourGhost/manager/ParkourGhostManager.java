@@ -1,5 +1,6 @@
 package fr.loudo.parkourGhost.manager;
 
+import fr.loudo.parkourGhost.ParkourGhost;
 import fr.loudo.parkourGhost.data.player.PlayerData;
 import fr.loudo.parkourGhost.nms.NMSHandler;
 import fr.loudo.parkourGhost.nms.PlaybackInterface;
@@ -53,8 +54,12 @@ public class ParkourGhostManager {
 
         if(!startPlaybackOfPlayer(player, courseName)) return false;
 
-        Parkour.getInstance().getPlayerManager().joinCourse(player, courseName);
-        player.sendTitle(" ", " ", 0, 0, 0); // Override title sent when joining a parkour from Parkour plugin
+        if(ParkourGhost.getPlugin().getConfig().getBoolean("join_parkour_on_playback")) {
+            Parkour.getInstance().getPlayerManager().joinCourse(player, courseName);
+        }
+        if(ParkourGhost.getPlugin().getConfig().getBoolean("playback.countdown")) {
+            player.sendTitle(" ", " ", 0, 0, 0); // Override title sent when joining a parkour from Parkour plugin
+        }
 
         return true;
     }

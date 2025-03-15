@@ -8,3 +8,6 @@ playback:
   start-second: 3
 
 check-version: true
+
+# Dev section, only change if you know what you are doing!
+join_parkour_on_playback: true

@@ -75,7 +75,7 @@ public class Recording {
         if(!force) {
             try {
                 ParkourSession pSession = Parkour.getInstance().getParkourSessionManager().getParkourSession(player);
-                if(Parkour.getInstance().getDatabaseManager().isBestCourseTime(pSession.getCourseName(), pSession.getTimeFinished())) {
+                if(Parkour.getInstance().getDatabaseManager().isBestCourseTime(player, pSession.getCourseName(), pSession.getTimeFinished())) {
                     save();
                     player.sendMessage(ChatColor.GREEN + "New Personal Best. Challenge your ghost with /paghost play " + pSession.getCourseName());
                 }
