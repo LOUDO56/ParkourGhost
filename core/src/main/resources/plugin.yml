@@ -9,6 +9,6 @@ depend:
   - Parkour
 commands:
   parkourghost:
-    aliases: paghost
+    aliases: [paghost, pg]
     usage: "/parkourghost <help|reload|play>"
     description: Join a parkour and challenge your ghost best time.

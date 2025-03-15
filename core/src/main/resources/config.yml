@@ -4,7 +4,7 @@ ghostplayer:
   particles-apparition: true
 
 playback:
-  countdown: true
+  countdown: false
   start-second: 3
 
 check-version: true
