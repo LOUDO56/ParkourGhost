@@ -24,7 +24,6 @@ public class ParkourEvents implements Listener {
     @EventHandler
     public void onPlayerParkourJoin(ParkourJoinEvent event) {
         ParkourGhostManager.joinPlayerParkour(event.getPlayer(), event.getCourseName());
-
     }
 
     @EventHandler

@@ -28,8 +28,8 @@ public class ParkourGhostManager {
         Recording recording = new Recording(player, courseName);
         SERVER_PLAYER_RECORDING_HASH_MAP.put(player, recording);
 
-        // If the player is playing a playback, we will start the recording after the countdown.
-        if(SERVER_PLAYER_PLAYBACK_HASH_MAP.get(player) == null) {
+        // If countdown is true, start the record after the countdown
+        if(!ParkourGhost.getPlugin().getConfig().getBoolean("playback.countdown")) {
             recording.start();
         }
 
@@ -102,6 +102,7 @@ public class ParkourGhostManager {
         }
         Recording recording = SERVER_PLAYER_RECORDING_HASH_MAP.get(player);
         if(recording != null) {
+            System.out.println("1");
             recording.stop(event, force);
             SERVER_PLAYER_RECORDING_HASH_MAP.remove(player, recording);
         }
