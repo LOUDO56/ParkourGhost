@@ -30,7 +30,7 @@ public class ParkourGhostCommand implements CommandExecutor {
                         ParkourGhost.getPlugin().reloadConfig();
                         p.sendMessage(ChatColor.GREEN + "Successfully reloaded ParkourGhost config!");
                     } else {
-                        p.sendMessage(ChatColor.RED + "No record found for this parkour.");
+                        p.sendMessage(ChatColor.RED + "No ghost found for this parkour.");
                     }
                     break;
 
@@ -40,7 +40,7 @@ public class ParkourGhostCommand implements CommandExecutor {
                         return true;
                     }
                     if(!ParkourGhostManager.joinPlayerParkourAndStartPlayback(p, args[1].toLowerCase())) {
-                        p.sendMessage(ChatColor.RED + "No record found for this parkour.");
+                        p.sendMessage(ChatColor.RED + "No ghost found for this parkour.");
                     }
                     break;
 
