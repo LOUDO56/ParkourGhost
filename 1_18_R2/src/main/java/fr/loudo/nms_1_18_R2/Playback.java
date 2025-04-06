@@ -47,6 +47,7 @@ public class   Playback implements PlaybackInterface {
     private BukkitTask countdownTask;
     private BukkitTask blockPlayerTask;
     private BukkitTask ghostPlayerTask;
+    private PlayerTeam team;
 
 
     public Playback(Player player, RecordingData recordingData, String courseName) {
@@ -87,7 +88,7 @@ public class   Playback implements PlaybackInterface {
         boolean ghostPlayerInvisible = ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.invisible");
 
         Scoreboard scoreboard = new Scoreboard();
-        PlayerTeam team = new PlayerTeam(scoreboard, "Ghost");
+        team = new PlayerTeam(scoreboard, "Ghost");
         team.setCollisionRule(Team.CollisionRule.NEVER);
         if(!seeUsername) {
             team.setNameTagVisibility(Team.Visibility.NEVER);
@@ -96,8 +97,8 @@ public class   Playback implements PlaybackInterface {
             ghostPlayer.setInvisible(true);
             team.setSeeFriendlyInvisibles(true);
         }
-        scoreboard.addPlayerToTeam(serverPlayer.getDisplayName().getString(), team);
-        scoreboard.addPlayerToTeam(ghostPlayer.getDisplayName().getString(), team);
+        scoreboard.addPlayerToTeam(serverPlayer.getName().getString(), team);
+        scoreboard.addPlayerToTeam(ghostPlayer.getName().getString(), team);
 
         serverPlayer.connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
         serverPlayer.connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
@@ -228,6 +229,7 @@ public class   Playback implements PlaybackInterface {
             ghostPlayer.remove(Entity.RemovalReason.KILLED);
             serverPlayer.connection.send(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER, ghostPlayer));
             serverPlayer.connection.send(new ClientboundRemoveEntitiesPacket(ghostPlayer.getId()));
+            serverPlayer.connection.send(ClientboundSetPlayerTeamPacket.createRemovePacket(team));
         }
 
         isPlayingBack = false;

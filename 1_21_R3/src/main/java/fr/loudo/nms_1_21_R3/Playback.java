@@ -49,6 +49,7 @@ public class Playback implements PlaybackInterface {
     private BukkitTask countdownTask;
     private BukkitTask blockPlayerTask;
     private BukkitTask ghostPlayerTask;
+    private PlayerTeam team;
 
 
     public Playback(Player player, RecordingData recordingData, String courseName) {
@@ -89,18 +90,17 @@ public class Playback implements PlaybackInterface {
         boolean seeUsername = ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.see-username");
         boolean ghostPlayerInvisible = ParkourGhost.getPlugin().getConfig().getBoolean("ghostplayer.invisible");
 
-        Scoreboard scoreboard = new Scoreboard();
-        PlayerTeam team = new PlayerTeam(scoreboard, "Ghost");
+        Scoreboard scoreboard = serverPlayer.getScoreboard();
+        team = new PlayerTeam(scoreboard, "Ghost");
         team.setCollisionRule(Team.CollisionRule.NEVER);
         if(!seeUsername) {
             team.setNameTagVisibility(Team.Visibility.NEVER);
         }
         if(ghostPlayerInvisible) {
             ghostPlayer.setInvisible(true);
-            team.setSeeFriendlyInvisibles(true);
         }
-        scoreboard.addPlayerToTeam(serverPlayer.getDisplayName().getString(), team);
-        scoreboard.addPlayerToTeam(ghostPlayer.getDisplayName().getString(), team);
+        scoreboard.addPlayerToTeam(serverPlayer.getName().getString(), team);
+        scoreboard.addPlayerToTeam(ghostPlayer.getName().getString(), team);
 
         // Enable all skin layers
         SynchedEntityData dataWatcherGhost = ghostPlayer.getEntityData();
@@ -109,7 +109,7 @@ public class Playback implements PlaybackInterface {
 
         connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true));
 
-        MovementData firstLoc = recordingData.getMovementData().get(0);
+        MovementData firstLoc = recordingData.getMovementData().getFirst();
         ghostPlayer.moveTo(firstLoc.getX(), firstLoc.getY(), firstLoc.getZ(), firstLoc.getxRot(), firstLoc.getyRot());
         NamespacedKey isGhostParkourKey = new NamespacedKey(ParkourGhost.getPlugin(), "isParkourGhost");
         ghostPlayer.getBukkitEntity().getPlayer().getPersistentDataContainer().set(isGhostParkourKey, PersistentDataType.INTEGER, 1);
@@ -227,6 +227,7 @@ public class Playback implements PlaybackInterface {
         if(ghostPlayer != null) {
             ghostPlayer.remove(Entity.RemovalReason.KILLED);
             serverPlayer.connection.send(new ClientboundPlayerInfoRemovePacket(List.of(ghostPlayer.getUUID())));
+            serverPlayer.connection.send(ClientboundSetPlayerTeamPacket.createRemovePacket(team));
         }
 
         isPlayingBack = false;
