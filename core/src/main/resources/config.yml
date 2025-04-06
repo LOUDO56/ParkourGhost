@@ -1,3 +1,14 @@
+messages:
+  no_ghost: "§cNo ghost found for this parkour."
+  not_valid_name: "§cPlease, put a valid name."
+  new_pb: "§aNew Personal Best. Challenge your ghost with /parkourghost play %course_name%"
+  unexpected_error_save_record: "§cAn unexpected error occurred while saving your position data!"
+  ghost_finished_parkour: "§aThe §eghost §afinished the parkour."
+
+help_pg_cmd:
+  1: "§a/parkourghost play [parkour_name] - Challenge your best time ghost on a parkour."
+  2: "§a/parkourghost reload - Reload Parkour Ghost configuration."
+
 ghostplayer:
   see-username: true
   invisible: true

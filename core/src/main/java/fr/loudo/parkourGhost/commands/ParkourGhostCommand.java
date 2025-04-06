@@ -30,17 +30,17 @@ public class ParkourGhostCommand implements CommandExecutor {
                         ParkourGhost.getPlugin().reloadConfig();
                         p.sendMessage(ChatColor.GREEN + "Successfully reloaded ParkourGhost config!");
                     } else {
-                        p.sendMessage(ChatColor.RED + "No ghost found for this parkour.");
+                        p.sendMessage(ParkourGhost.getPlugin().getConfig().getString("messages.no_ghost"));
                     }
                     break;
 
                 case "play":
                     if(args.length == 1) {
-                        p.sendMessage(ChatColor.RED + "Please, put a valid parkour name.");
+                        p.sendMessage(ParkourGhost.getPlugin().getConfig().getString("messages.not_valid_name"));
                         return true;
                     }
                     if(!ParkourGhostManager.joinPlayerParkourAndStartPlayback(p, args[1].toLowerCase())) {
-                        p.sendMessage(ChatColor.RED + "No ghost found for this parkour.");
+                        p.sendMessage(ParkourGhost.getPlugin().getConfig().getString("messages.no_ghost"));
                     }
                     break;
 
@@ -54,9 +54,9 @@ public class ParkourGhostCommand implements CommandExecutor {
     }
 
     private void sendHelp(Player p) {
-        p.sendMessage(ChatColor.GREEN + "/parkourghost play [parkour_name] - Challenge your best time ghost on a parkour.");
+        p.sendMessage(ParkourGhost.getPlugin().getConfig().getString("help_pg_cmd.1"));
         if(p.hasPermission("parkourghost.admin")) {
-            p.sendMessage(ChatColor.GREEN + "/parkourghost reload - Reload Parkour Ghost configuration.");
+            p.sendMessage(ParkourGhost.getPlugin().getConfig().getString("help_pg_cmd.2"));
         }
     }
 }

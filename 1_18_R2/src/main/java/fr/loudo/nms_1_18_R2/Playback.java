@@ -146,7 +146,7 @@ public class   Playback implements PlaybackInterface {
             public void run() {
 
                 if (tick >= recordingData.getMovementData().size()) {
-                    player.sendMessage(ChatColor.GREEN + "The " + ChatColor.YELLOW + "ghost" + ChatColor.GREEN + " finished the parkour.");
+                    player.sendMessage(ParkourGhost.getPlugin().getConfig().getString("messages.ghost_finished_parkour"));
                     stop();
                     return;
                 }

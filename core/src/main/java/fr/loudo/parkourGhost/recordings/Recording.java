@@ -77,10 +77,10 @@ public class Recording {
             try {
                 if(event.isPlayerRecord() || event.isGlobalRecord()) {
                     save();
-                    player.sendMessage(ChatColor.GREEN + "New Personal Best. Challenge your ghost with /parkourghost play " + event.getCourseName());
+                    player.sendMessage(ParkourGhost.getPlugin().getConfig().getString("messages.new_pb").replace("%course_name%", event.getCourseName()));
                 }
             } catch (Exception e) {
-                player.sendMessage("An unexpected error occurred while saving your position data!");
+                player.sendMessage(ParkourGhost.getPlugin().getConfig().getString("messages.unexpected_error_save_record"));
                 throw new RuntimeException(e);
             }
         }
