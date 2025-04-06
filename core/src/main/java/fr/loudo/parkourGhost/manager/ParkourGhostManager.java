@@ -102,7 +102,6 @@ public class ParkourGhostManager {
         }
         Recording recording = SERVER_PLAYER_RECORDING_HASH_MAP.get(player);
         if(recording != null) {
-            System.out.println("1");
             recording.stop(event, force);
             SERVER_PLAYER_RECORDING_HASH_MAP.remove(player, recording);
         }
